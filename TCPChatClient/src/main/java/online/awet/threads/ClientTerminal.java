@@ -28,11 +28,19 @@ public class ClientTerminal implements Runnable {
                         writer.flush();
                         scanner.close();
                         socket.close();
+                        break;
                     }
+
+                    // TODO: make a class to handle input parsing, so i can easily handle multiple future message kinds
 
                     writer.write(message);
                     writer.newLine();
                     writer.flush();
+
+                    // Move the cursor up one line
+                    System.out.print("\033[F");
+                    // Clear the entire line
+                    System.out.print("\033[2K");
                 }
             }
         } catch (IOException e) {

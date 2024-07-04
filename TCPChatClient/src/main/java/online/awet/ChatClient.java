@@ -13,7 +13,7 @@ public class ChatClient {
         int port = 7560;
 
         if (args.length < 1) {
-            System.out.println("Usage: java TCPClient <server-ip>");
+            System.out.println("Usage: java TCPClient <server-ip> <username>");
             return;
         }
 
@@ -26,6 +26,9 @@ public class ChatClient {
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
+
+            // TODO: Send client id to server, so the server could use the name
+            // Use the Writer to send user data
 
             Thread serverReaderThread = new Thread(new ServerPrinter(reader));
             Thread clientTerminalThread = new Thread(new ClientTerminal(socket, writer, scanner));
