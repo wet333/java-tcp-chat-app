@@ -39,8 +39,8 @@ public class ConnectionHandler implements Runnable {
                 greetUser = false;
             }
 
+            // TODO: make a class to handle input parsing and filtering, so i can easily handle multiple message kinds
             String line;
-
             while ((line = reader.readLine()) != null) {
                 System.out.println(socket.getInetAddress().getHostAddress() + ": " + line);
                 broadcastManager.broadcast(guestId + ": " + line + "\n", this);

@@ -1,15 +1,18 @@
 package online.awet.users;
 
+import java.net.InetAddress;
 import java.util.Objects;
 
 public class User {
 
     private String username;
     private String password;
+    private InetAddress ip;
 
     public User(String username, String password) {
         this.username = username;
         this.password = password;
+        this.ip = null;
     }
 
     public String getUsername() {
@@ -26,6 +29,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public InetAddress getIp() {
+        return ip;
+    }
+
+    public void setIp(InetAddress ip) {
+        this.ip = ip;
     }
 
     public String toString() {

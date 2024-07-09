@@ -11,6 +11,9 @@ public class BroadcastManager {
     private static final BroadcastManager instance = new BroadcastManager();
     private final Set<ConnectionHandler> broadcastMembers = Collections.synchronizedSet(new HashSet<ConnectionHandler>());
 
+    // Broadcast Config
+    private static final boolean SELF_BROADCAST = true;
+
     private BroadcastManager() {}
 
     public static BroadcastManager getInstance() {
@@ -28,9 +31,10 @@ public class BroadcastManager {
     public void broadcast(String message, ConnectionHandler sender) {
         synchronized (broadcastMembers) {
             for (ConnectionHandler member : broadcastMembers) {
-                if (!member.equals(sender)) {
-                    member.sendMessageToClient(message);
+                if (!SELF_BROADCAST && member.equals(sender)) {
+                    continue;
                 }
+                member.sendMessageToClient(message);
             }
         }
     }
