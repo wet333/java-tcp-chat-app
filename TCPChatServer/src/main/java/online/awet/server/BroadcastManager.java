@@ -31,7 +31,11 @@ public class BroadcastManager {
     public void broadcast(String message, ConnectionHandler sender) {
         synchronized (broadcastMembers) {
             for (ConnectionHandler member : broadcastMembers) {
-                if (!SELF_BROADCAST && member.equals(sender)) {
+                if (member.equals(sender)) {
+                    if (SELF_BROADCAST) {
+                        // Add a * to indicate that the message is from the sender itself
+                        member.sendMessageToClient("* " + message);
+                    }
                     continue;
                 }
                 member.sendMessageToClient(message);

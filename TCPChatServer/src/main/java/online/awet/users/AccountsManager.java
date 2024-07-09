@@ -29,6 +29,11 @@ public class AccountsManager {
 
     public void addAccount(String username, String password) {
         users.add(new User(username, password));
+        try {
+            saveAccountList();
+        } catch (IOException e) {
+            System.out.println("There was an error saving the user: " + username + ", couldn't open file: " + accountsStorageFile);
+        }
     }
 
     public void deleteAccount(String username, String password) {
@@ -63,6 +68,11 @@ public class AccountsManager {
     // Reads all user's credentials from accountsStorageFile file and loads them into memory
     // The user list is handled in memory not in the file
     public Set<User> loadAccountList() throws IOException {
+        File file = new File(accountsStorageFile);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+
         BufferedReader fileReader = new BufferedReader(new FileReader(accountsStorageFile));
         Set<User> loadedUsers = new HashSet<>();
 
