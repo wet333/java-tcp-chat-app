@@ -4,6 +4,7 @@ public interface Action {
 
     String getClientIdentifier();
     String getServerIdentifier();
+    void printActionClass();
 
     boolean isTriggeredByClientMessage(String clientMessage);
     boolean isTriggeredByServerMessage(String serverMessage);

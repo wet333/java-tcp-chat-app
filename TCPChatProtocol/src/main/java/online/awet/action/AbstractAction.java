@@ -40,6 +40,11 @@ public abstract class AbstractAction implements Action {
     }
 
     @Override
+    public void printActionClass() {
+        System.out.println("Current action: " + this.getClass());
+    }
+
+    @Override
     public abstract String getClientIdentifier();
 
     @Override
