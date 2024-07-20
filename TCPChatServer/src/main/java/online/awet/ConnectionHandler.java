@@ -1,6 +1,8 @@
 package online.awet;
 
-import online.awet.actions.userManagement.RegisterAction;
+import online.awet.actions.lib.AbstractAction;
+import online.awet.actions.lib.ActionFactory;
+import online.awet.actions.collection.userManagement.RegisterAction;
 import online.awet.server.BroadcastManager;
 import online.awet.users.AccountsManager;
 import online.awet.users.Guest;
@@ -25,6 +27,7 @@ public class ConnectionHandler implements Runnable {
 
     public void run() {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
+        ActionFactory actionFactory = ActionFactory.getInstance();
 
         // Get IO
         try {
@@ -47,7 +50,9 @@ public class ConnectionHandler implements Runnable {
             while ((line = reader.readLine()) != null) {
                 System.out.println(socket.getInetAddress().getHostAddress() + ": " + line);
                 // Here the app should interpret the message and search for an action to perform
-                if (RegisterAction.getInstance().isTriggeredByServerMessage(line)) {
+
+                AbstractAction registerAction = actionFactory.getAction(RegisterAction.class);
+                if (registerAction.isTriggeredByServerMessage(line)) {
                     // Get the data from the message
                     List<String> parts = List.of(line.split(":"));
                     System.out.println("Registering user: " + parts.get(2) + " with password: " + parts.get(3));

@@ -1,4 +1,4 @@
-package online.awet.action;
+package online.awet.actions.lib;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,8 +10,15 @@ import java.util.Set;
 
 public class ActionLoader {
 
-    public static Set<Action> loadActions(String packageName) {
-        Set<Action> actions = new HashSet<>();
+//    public static void main(String[] args) {
+//        Set<AbstractAction> actions = loadActions("online.awet.actions");
+//        for (AbstractAction action : actions) {
+//            System.out.println(action.getClass().getName());
+//        }
+//    }
+
+    public static Set<AbstractAction> loadActions(String packageName) {
+        Set<AbstractAction> actions = new HashSet<>();
 
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         String path = packageName.replace('.', '/');
@@ -42,9 +49,9 @@ public class ActionLoader {
         return actions;
     }
 
-    private static Set<Action> findClasses(File directory, String packageName)
+    private static Set<AbstractAction> findClasses(File directory, String packageName)
             throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Set<Action> actions = new HashSet<>();
+        Set<AbstractAction> actions = new HashSet<>();
 
         if (!directory.exists()) {
             return actions;
@@ -62,8 +69,8 @@ public class ActionLoader {
                         String fullyQualifiedClassName = packageName + "." + className;
                         Class<?> clazz = Class.forName(fullyQualifiedClassName);
 
-                        if (Action.class.isAssignableFrom(clazz)) {
-                            Action classAction = (Action) clazz.asSubclass(Action.class).getMethod("getInstance").invoke(null);
+                        if (AbstractAction.class.isAssignableFrom(clazz)) {
+                            AbstractAction classAction = (AbstractAction) clazz.asSubclass(AbstractAction.class).getMethod("getInstance").invoke(null);
                             actions.add(classAction);
                         }
                     }

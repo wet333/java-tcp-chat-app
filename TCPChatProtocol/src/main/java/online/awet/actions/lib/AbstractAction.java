@@ -1,4 +1,6 @@
-package online.awet.action;
+package online.awet.actions.lib;
+
+import online.awet.actions.lib.exceptions.InvalidActionArgumentsException;
 
 /**
     The MessageProtocol class serves as an abstract base class for defining
@@ -17,11 +19,14 @@ package online.awet.action;
 
     Subclasses must implement the methods to handle specific actions using the protocol.
 */
-public abstract class AbstractAction implements Action {
+public abstract class AbstractAction {
 
     protected static final String PROTOCOL_PREFIX = "AWP";
 
-    @Override
+    public abstract String getClientIdentifier();
+    public abstract String getServerIdentifier();
+    public abstract int getNumberOfArguments();
+
     public boolean isTriggeredByClientMessage(String clientMessage) {
         return clientMessage.startsWith(this.getClientIdentifier());
     }
@@ -34,19 +39,29 @@ public abstract class AbstractAction implements Action {
         return false;
     }
 
-    @Override
-    public String translateToServerMessage(String clientMessage) {
-        return "";
+    public String translateToServerMessage(String clientMessage) throws InvalidActionArgumentsException {
+        String[] messageParts = clientMessage.split(" ");
+        StringBuilder serverMessage = new StringBuilder();
+
+        serverMessage.append(PROTOCOL_PREFIX);
+
+        if (messageParts.length == (this.getNumberOfArguments() + 1)) {
+            boolean isActionChecked = false;
+            for (String arg : messageParts) {
+                if (!isActionChecked && this.getClientIdentifier().equals(arg)) {
+                    serverMessage.append(":").append(getServerIdentifier());
+                } else {
+                    serverMessage.append(":").append(arg);
+                }
+            }
+            serverMessage.append(";");
+            return serverMessage.toString();
+        } else {
+            throw new InvalidActionArgumentsException(this.getClass().toString());
+        }
     }
 
-    @Override
     public void printActionClass() {
         System.out.println("Current action: " + this.getClass());
     }
-
-    @Override
-    public abstract String getClientIdentifier();
-
-    @Override
-    public abstract String getServerIdentifier();
 }

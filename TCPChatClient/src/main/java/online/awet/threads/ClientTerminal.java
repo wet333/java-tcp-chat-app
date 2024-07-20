@@ -1,7 +1,9 @@
 package online.awet.threads;
 
-import online.awet.action.ActionException;
-import online.awet.actions.userManagement.RegisterAction;
+import online.awet.actions.lib.AbstractAction;
+import online.awet.actions.lib.exceptions.ActionException;
+import online.awet.actions.lib.ActionFactory;
+import online.awet.actions.collection.userManagement.RegisterAction;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -23,6 +25,9 @@ public class ClientTerminal implements Runnable {
     @Override
     public void run() {
         try {
+
+            ActionFactory actionFactory = ActionFactory.getInstance();
+
             while (true) {
                 if (scanner.hasNextLine()) {
                     String message = scanner.nextLine();
@@ -35,9 +40,10 @@ public class ClientTerminal implements Runnable {
                     }
 
                     // TODO: make a class to handle input parsing, so i can easily handle multiple future message kinds
-                    if (RegisterAction.getInstance().isTriggeredByClientMessage(message)) {
+                    AbstractAction registerAction = actionFactory.getAction(RegisterAction.class);
+                    if (registerAction.isTriggeredByClientMessage(message)) {
                         try {
-                            String registerMessage = RegisterAction.getInstance().parseUserMessage(message);
+                            String registerMessage = registerAction.translateToServerMessage(message);
                             writer.write(registerMessage);
                             writer.newLine();
                             writer.flush();
