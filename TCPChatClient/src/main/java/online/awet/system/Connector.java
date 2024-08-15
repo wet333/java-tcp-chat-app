@@ -9,7 +9,9 @@ import java.net.Socket;
 public class Connector {
 
     private static Connector instance;
+
     private Configuration configuration;
+    private Socket serverSocket;
 
     private Connector() {}
 
@@ -28,11 +30,20 @@ public class Connector {
     public Socket connect(String serverIp) {
         configuration.setServerIp(serverIp);
         try {
-            return new Socket(configuration.getServerIp(), DefaultConfigurations.DEFAULT_PORT);
+            Socket server = new Socket(configuration.getServerIp(), DefaultConfigurations.DEFAULT_PORT);
+            setServerSocket(server);
+            return server;
         } catch (IOException e) {
             System.out.println("Couldn't connect to server, with IP: " + configuration.getServerIp());
         }
         return null;
     }
 
+    public Socket getServerSocket() {
+        return serverSocket;
+    }
+
+    public void setServerSocket(Socket serverSocket) {
+        this.serverSocket = serverSocket;
+    }
 }

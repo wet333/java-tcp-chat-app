@@ -2,7 +2,7 @@ package online.awet;
 
 import online.awet.system.Connector;
 import online.awet.threads.ClientTerminal;
-import online.awet.threads.ServerPrinter;
+import online.awet.threads.TcpReceiverThread;
 
 import java.io.*;
 import java.net.Socket;
@@ -15,22 +15,20 @@ public class ChatClient {
             Socket socket = Connector.getInstance().connect();
             Scanner scanner = new Scanner(System.in);
 
-            InputStream in = socket.getInputStream();
             OutputStream out = socket.getOutputStream();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
 
             // TODO: Send client id to server, so the server could use the name
             // Use the Writer to send user data
 
-            Thread serverReaderThread = new Thread(new ServerPrinter(reader));
+            Thread tcpRecieverThread = new Thread(TcpReceiverThread.getInstance());
             Thread clientTerminalThread = new Thread(new ClientTerminal(socket, writer, scanner));
 
-            serverReaderThread.start();
+            tcpRecieverThread.start();
             clientTerminalThread.start();
 
-            serverReaderThread.join();
+            tcpRecieverThread.join();
             clientTerminalThread.join();
 
         } catch (IOException e) {
