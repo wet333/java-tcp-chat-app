@@ -1,5 +1,6 @@
 package online.awet;
 
+import online.awet.system.Connector;
 import online.awet.threads.ClientTerminal;
 import online.awet.threads.ServerPrinter;
 
@@ -10,15 +11,8 @@ import java.util.Scanner;
 public class ChatClient {
     public static void main(String[] args) {
 
-        int port = 7560;
-
-        if (args.length < 1) {
-            System.out.println("Usage: java TCPClient <server-ip> <username>");
-            return;
-        }
-
         try {
-            Socket socket = new Socket(args[0], port);
+            Socket socket = Connector.getInstance().connect();
             Scanner scanner = new Scanner(System.in);
 
             InputStream in = socket.getInputStream();
