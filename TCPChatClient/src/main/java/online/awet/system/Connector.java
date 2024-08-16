@@ -39,7 +39,10 @@ public class Connector {
         return null;
     }
 
-    public Socket getServerSocket() {
+    public Socket getServerSocket() throws ConnectorException {
+        if (serverSocket == null) {
+            throw new ConnectorException("You need to connect, after getting server socket.");
+        }
         return serverSocket;
     }
 

@@ -1,6 +1,7 @@
 package online.awet.threads;
 
 import online.awet.system.Connector;
+import online.awet.system.ConnectorException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,12 +18,15 @@ public class TcpReceiverThread implements Runnable {
     private final BlockingQueue<String> messageQueue;
 
     private TcpReceiverThread() {
-        Socket serverSocket = Connector.getInstance().getServerSocket();
         messageQueue = new LinkedBlockingQueue<>();
         try {
+            Socket serverSocket = Connector.getInstance().getServerSocket();
             serverMessageStream = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
         } catch (IOException e) {
             System.out.println("The TcpReceiverThread couldn't get the socket inputStream.");
+            System.out.println(e.getMessage());
+        } catch (ConnectorException e) {
+            System.out.println(e.getMessage());
         }
     }
 
