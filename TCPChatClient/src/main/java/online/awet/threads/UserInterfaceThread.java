@@ -1,10 +1,7 @@
 package online.awet.threads;
 
-import online.awet.actions.collection.userManagement.RegisterAction;
-import online.awet.actions.lib.AbstractAction;
-import online.awet.actions.lib.ActionFactory;
-import online.awet.actions.lib.exceptions.ActionException;
 import online.awet.system.Connector;
+import online.awet.system.Translator;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -42,32 +39,16 @@ public class UserInterfaceThread implements Runnable {
     @Override
     public void run() {
         try {
-            ActionFactory actionFactory = ActionFactory.getInstance();
+            Translator translator = Translator.getInstance();
 
             // Loop listening for user input
             while (true) {
                 if (cliScanner.hasNextLine()) {
                     String userInput = cliScanner.nextLine();
 
-                    if ("/exit".equals(userInput)) {
-                        writer.flush();
-                        cliScanner.close();
-                        serverSocket.close();
-                        break;
-                    }
-
-                    // TODO: make a class to handle input parsing, so i can easily handle multiple future message kinds
-                    AbstractAction registerAction = actionFactory.getAction(RegisterAction.class);
-                    if (registerAction.isTriggeredByClientMessage(userInput)) {
-                        try {
-                            String registerMessage = registerAction.translateToServerMessage(userInput);
-                            writer.write(registerMessage);
-                            writer.newLine();
-                            writer.flush();
-                            continue;
-                        } catch (ActionException e) {
-                            System.out.println(e.getMessage());
-                        }
+                    // If the user enters a command, translate it to the PROTOCOL and send it
+                    if (translator.isServerAction(userInput)) {
+                        userInput = translator.translate(userInput);
                     }
 
                     writer.write(userInput);
@@ -81,8 +62,10 @@ public class UserInterfaceThread implements Runnable {
                 }
             }
         } catch (Exception e) {
-            System.out.println("Error sending message to the server");
-            System.out.println("Cause: " + e.getMessage());
+            System.out.println("Error sending message to the server, Cause: " + e.getMessage());
+
+            // Restart Loop
+            this.run();
         }
     }
 }

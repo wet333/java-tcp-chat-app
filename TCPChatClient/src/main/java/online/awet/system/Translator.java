@@ -27,8 +27,6 @@ public class Translator {
         List<String> messageParts = new ArrayList<>(List.of(clientMessage.split(" ")));
         StringBuilder result = new StringBuilder();
 
-        System.out.println("Parts: " + messageParts);
-
         String command = messageParts.removeFirst();
         if ("/".equals(command)) {
             throw new TranslatorException("Error, empty command: \"/\"");
@@ -38,21 +36,21 @@ public class Translator {
         }
 
         while(!messageParts.isEmpty()) {
-            String key = messageParts.removeFirst();
-            String value = messageParts.removeFirst();
+            try {
+                String key = messageParts.removeFirst();
+                String value = messageParts.removeFirst();
 
-            if (!key.startsWith("-")) {
-                throw new TranslatorException("Invalid message, on: " + clientMessage.replace(key, "<!>" + key + "<!>"));
+                if (!key.startsWith("-")) {
+                    throw new TranslatorException("Invalid message, on: " + clientMessage.replace(key, "<!>" + key + "<!>"));
+                }
+                key = key.replace("-", "");
+
+                result.append(String.format(KEY_VALUE_PAIR_FORMAT, key, value));
+
+            } catch (NoSuchElementException e) {
+                throw new TranslatorException("Missing key or value, message: " + clientMessage);
             }
-            key = key.replace("-", "");
-
-            if (value == null) {
-                throw new TranslatorException("Missing value on key: " + key);
-            }
-
-            result.append(String.format(KEY_VALUE_PAIR_FORMAT, key, value));
         }
-
         return result.toString();
     }
 
