@@ -1,4 +1,4 @@
-package online.awet.system.sessions.users;
+package online.awet.system.userManagement;
 
 import java.net.InetAddress;
 import java.util.Objects;

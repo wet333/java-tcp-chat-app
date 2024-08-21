@@ -1,6 +1,5 @@
 package online.awet;
 
-import online.awet.system.broadcast.BroadcastManager;
 import online.awet.threads.ClientHandlerThread;
 
 import java.io.IOException;
@@ -17,15 +16,11 @@ public class ChatServer {
     public static void main(String[] args) {
 
         ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POLL_COUNT);
-        BroadcastManager broadcastManager = BroadcastManager.getInstance();
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
-                // Each connection made will start a thread of type ConnectionHandler, and will add that thread
-                // to the broadcast members, that way other users will be able to see their messages
                 Socket clientConnection = serverSocket.accept();
                 ClientHandlerThread clientHandlerThread = new ClientHandlerThread(clientConnection);
-                broadcastManager.addBroadcastMember(clientHandlerThread);
                 threadPool.execute(clientHandlerThread);
             }
         } catch (IOException e) {

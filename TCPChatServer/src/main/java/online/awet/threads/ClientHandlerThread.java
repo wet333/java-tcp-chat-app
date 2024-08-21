@@ -1,7 +1,8 @@
 package online.awet.threads;
 
 import online.awet.system.broadcast.BroadcastManager;
-import online.awet.system.sessions.users.Guest;
+import online.awet.system.sessions.GuestSession;
+import online.awet.system.sessions.Session;
 
 import java.io.*;
 import java.net.Socket;
@@ -10,36 +11,29 @@ public class ClientHandlerThread implements Runnable {
 
     private final Socket socket;
     private boolean greetUser;
-    private final String guestId;
-
-    private BufferedWriter socketWriter;
+    private final Session session;
 
     public ClientHandlerThread(Socket socket) {
         this.socket = socket;
         this.greetUser = true;
-        this.guestId = Guest.autogenerateGuestId();
+        this.session = new GuestSession();
     }
 
     public void run() {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
 
-        // Get IO
         try {
             InputStream inputStream = socket.getInputStream();
             OutputStream outputStream = socket.getOutputStream();
 
-            // TODO: I should subscribe to the broadcaster in here and not in the main class.
-            // I need to subscribe the socket output stream to the broadcaster, an make it
-            // hold a list of output streams for each client connected.
-
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            socketWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+            BufferedWriter socketWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+
+            broadcastManager.addBroadcastMember(session, socketWriter);
 
             if (greetUser) {
-                System.out.println("New client connected " + socket.getRemoteSocketAddress() + " !!!");
-                socketWriter.write("Server: You have successfully connected to the server.");
-                socketWriter.newLine();
-                socketWriter.flush();
+                System.out.println("New client connected " + socket.getRemoteSocketAddress() + ", with sessionId: " + session.getSessionId());
+                broadcastManager.sendTo("You have successfully connected to the server.", session);
                 greetUser = false;
             }
 
@@ -50,28 +44,20 @@ public class ClientHandlerThread implements Runnable {
 
                 // Here the app should interpret the message and search for an action to perform
 
-                broadcastManager.broadcast(guestId + ": " + line + "\n", this);
+                broadcastManager.broadcast(session.getSessionId() + ": " + line + "\n", session);
                 socketWriter.newLine();
                 socketWriter.flush();
             }
 
-            System.out.println("Client " + socket.getInetAddress().getHostAddress() + " has disconnected.");
+            String disconnectedMsg = "Client " + socket.getInetAddress().getHostAddress() + " has disconnected.";
+            broadcastManager.serverBroadcast(disconnectedMsg);
+            System.out.println(disconnectedMsg);
+
+            broadcastManager.removeBroadcastMember(session);
             socket.close();
-            broadcastManager.removeBroadcastMember(this);
+
         } catch (IOException e) {
             System.out.println("Error while handling connection IO");
-        }
-    }
-
-    // TODO: This shouldn't be in the thread class, it has nothing to do with. Move to the broadcaster
-    public void sendMessageToClient(String message) {
-        try {
-            socketWriter.write(message);
-            socketWriter.newLine();
-            socketWriter.flush();
-        } catch (IOException e) {
-            System.out.println("Error while sending broadcast message to client " + socket.getInetAddress().getHostAddress());
-            System.out.println("Cause: " + e.getMessage());
         }
     }
 }

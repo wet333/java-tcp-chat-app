@@ -1,7 +1,9 @@
 package online.awet.system.broadcast;
 
-import online.awet.threads.ClientHandlerThread;
+import online.awet.system.sessions.Session;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -9,10 +11,7 @@ import java.util.Set;
 public class BroadcastManager {
 
     private static final BroadcastManager instance = new BroadcastManager(); // No lazy loading, init with app.
-    private final Set<ClientHandlerThread> broadcastMembers = Collections.synchronizedSet(new HashSet<ClientHandlerThread>());
-
-    // Broadcast Config
-    private static final boolean SELF_BROADCAST = true;
+    private final Set<BroadcastMember> broadcastMembers = Collections.synchronizedSet(new HashSet<>());
 
     private BroadcastManager() {}
 
@@ -20,25 +19,64 @@ public class BroadcastManager {
         return instance;
     }
 
-    public void addBroadcastMember(ClientHandlerThread member) {
-        broadcastMembers.add(member);
+    public void addBroadcastMember(Session session, BufferedWriter member) {
+        broadcastMembers.add(new BroadcastMember(session.getSessionId(), member));
     }
 
-    public void removeBroadcastMember(ClientHandlerThread member) {
-        broadcastMembers.remove(member);
+    public void removeBroadcastMember(Session session) {
+        broadcastMembers.removeIf(member -> member.getSessionId().equals(session.getSessionId()));
     }
 
-    public void broadcast(String message, ClientHandlerThread sender) {
+    // TODO: In following updates I will need to implement the following combinations:
+    // Server -> All, Server -> Room, Server -> Session
+    // Session -> All, Session -> Room, Session -> Session
+    // Also i will need to manage GuestSessions and LoggedSessions separately
+
+    public void sendTo(String message, Session session) {
         synchronized (broadcastMembers) {
-            for (ClientHandlerThread member : broadcastMembers) {
-                if (member.equals(sender)) {
-                    if (SELF_BROADCAST) {
-                        // Add a * to indicate that the message is from the sender itself
-                        member.sendMessageToClient("* " + message);
+            for (BroadcastMember member : broadcastMembers) {
+                try {
+                    if (member.getSessionId().equals(session.getSessionId())) {
+                        member.getWriter().write("Server: " + message);
+                        member.getWriter().newLine();
+                        member.getWriter().flush();
+                        break;
                     }
-                    continue;
+                } catch (IOException e) {
+                    System.out.println("Couldn't send message <<" + message + ">> to client. Cause: " + e.getMessage());
                 }
-                member.sendMessageToClient(message);
+            }
+        }
+    }
+
+    public void broadcast(String message, Session session) {
+        synchronized (broadcastMembers) {
+            for (BroadcastMember member : broadcastMembers) {
+                try {
+                    String messageToSend = member.getSessionId().equals(session.getSessionId()) ? "* " + message : message;
+                    member.getWriter().write(messageToSend);
+                    member.getWriter().newLine();
+                    member.getWriter().flush();
+
+                } catch (IOException e) {
+                    System.out.println("Couldn't send message <<" + message + ">> to client. Cause: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    public void serverBroadcast(String message) {
+        synchronized (broadcastMembers) {
+            for (BroadcastMember member : broadcastMembers) {
+                try {
+                    message = "Server: " + message;
+                    member.getWriter().write(message);
+                    member.getWriter().newLine();
+                    member.getWriter().flush();
+
+                } catch (IOException e) {
+                    System.out.println("Couldn't send message <<" + message + ">> to client. Cause: " + e.getMessage());
+                }
             }
         }
     }

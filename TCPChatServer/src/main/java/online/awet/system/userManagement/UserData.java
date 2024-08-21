@@ -1,4 +1,4 @@
-package online.awet.system.sessions.userData;
+package online.awet.system.userManagement;
 
 public class UserData {
 
