@@ -31,7 +31,7 @@ public class TcpReceiverThread implements Runnable {
     }
 
     public static TcpReceiverThread getInstance() {
-        if (instance == null) {
+        if (instance == null) { 
             instance = new TcpReceiverThread();
         }
         return instance;

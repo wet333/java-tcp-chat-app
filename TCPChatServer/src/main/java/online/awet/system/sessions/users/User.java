@@ -1,10 +1,11 @@
-package online.awet.users;
+package online.awet.system.sessions.users;
 
 import java.net.InetAddress;
 import java.util.Objects;
 
 public class User {
 
+    // Private information
     private String username;
     private String password;
     private InetAddress ip;

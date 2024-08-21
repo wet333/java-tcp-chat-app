@@ -1,17 +1,12 @@
-package online.awet;
+package online.awet.threads;
 
-import online.awet.actions.lib.AbstractAction;
-import online.awet.actions.lib.ActionFactory;
-import online.awet.actions.collection.userManagement.RegisterAction;
-import online.awet.server.BroadcastManager;
-import online.awet.users.AccountsManager;
-import online.awet.users.Guest;
+import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.sessions.users.Guest;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.List;
 
-public class ConnectionHandler implements Runnable {
+public class ClientHandlerThread implements Runnable {
 
     private final Socket socket;
     private boolean greetUser;
@@ -19,7 +14,7 @@ public class ConnectionHandler implements Runnable {
 
     private BufferedWriter socketWriter;
 
-    public ConnectionHandler(Socket socket) {
+    public ClientHandlerThread(Socket socket) {
         this.socket = socket;
         this.greetUser = true;
         this.guestId = Guest.autogenerateGuestId();
@@ -27,12 +22,15 @@ public class ConnectionHandler implements Runnable {
 
     public void run() {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        ActionFactory actionFactory = ActionFactory.getInstance();
 
         // Get IO
         try {
             InputStream inputStream = socket.getInputStream();
             OutputStream outputStream = socket.getOutputStream();
+
+            // TODO: I should subscribe to the broadcaster in here and not in the main class.
+            // I need to subscribe the socket output stream to the broadcaster, an make it
+            // hold a list of output streams for each client connected.
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
             socketWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
@@ -49,21 +47,9 @@ public class ConnectionHandler implements Runnable {
             String line;
             while ((line = reader.readLine()) != null) {
                 System.out.println(socket.getInetAddress().getHostAddress() + ": " + line);
+
                 // Here the app should interpret the message and search for an action to perform
 
-                AbstractAction registerAction = actionFactory.getAction(RegisterAction.class);
-                if (registerAction.isTriggeredByServerMessage(line)) {
-                    // Get the data from the message
-                    List<String> parts = List.of(line.split(":"));
-                    System.out.println("Registering user: " + parts.get(2) + " with password: " + parts.get(3));
-                    AccountsManager.getInstance().addAccount(parts.get(2), parts.get(3));
-
-                    // Respond to the client, but don't echo the request
-                    broadcastManager.broadcast("User " + parts.get(2) + " has joined the community.", this);
-                    socketWriter.newLine();
-                    socketWriter.flush();
-                    continue;
-                }
                 broadcastManager.broadcast(guestId + ": " + line + "\n", this);
                 socketWriter.newLine();
                 socketWriter.flush();
@@ -77,6 +63,7 @@ public class ConnectionHandler implements Runnable {
         }
     }
 
+    // TODO: This shouldn't be in the thread class, it has nothing to do with. Move to the broadcaster
     public void sendMessageToClient(String message) {
         try {
             socketWriter.write(message);
