@@ -1,6 +1,7 @@
 package online.awet.threads;
 
 import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.messages.MessageHandlerChain;
 import online.awet.system.sessions.GuestSession;
 import online.awet.system.sessions.Session;
 
@@ -21,6 +22,7 @@ public class ClientHandlerThread implements Runnable {
 
     public void run() {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
+        MessageHandlerChain messageHandlerChain = MessageHandlerChain.getInstance();
 
         try {
             InputStream inputStream = socket.getInputStream();
@@ -37,16 +39,9 @@ public class ClientHandlerThread implements Runnable {
                 greetUser = false;
             }
 
-            // TODO: make a class to handle input parsing and filtering, so i can easily handle multiple message kinds
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(socket.getInetAddress().getHostAddress() + ": " + line);
-
-                // Here the app should interpret the message and search for an action to perform
-
-                broadcastManager.broadcast(session.getSessionId() + ": " + line + "\n", session);
-                socketWriter.newLine();
-                socketWriter.flush();
+            String clientMessage;
+            while ((clientMessage = reader.readLine()) != null) {
+                messageHandlerChain.process(session, clientMessage);
             }
 
             String disconnectedMsg = "Client " + socket.getInetAddress().getHostAddress() + " has disconnected.";

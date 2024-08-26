@@ -14,7 +14,6 @@ public class ChatServer {
     private static final int THREAD_POLL_COUNT = 12;
 
     public static void main(String[] args) {
-
         ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POLL_COUNT);
 
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
