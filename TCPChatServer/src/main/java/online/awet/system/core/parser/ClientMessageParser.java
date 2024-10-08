@@ -19,6 +19,7 @@ public class ClientMessageParser {
         String command;
         String dataPairs;
 
+        // TODO: no data command will cause an exception
         if (isACommand(clientMessage)) {
             String[] parts = clientMessage.split(":");
             command = parts[0];
