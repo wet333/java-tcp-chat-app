@@ -1,7 +1,7 @@
 package online.awet.threads;
 
 import online.awet.system.broadcast.BroadcastManager;
-import online.awet.system.messages.MessageHandlerChain;
+import online.awet.system.messages.MessageHandlerFilterChain;
 import online.awet.system.sessions.GuestSession;
 import online.awet.system.sessions.Session;
 
@@ -17,7 +17,7 @@ import java.net.Socket;
  * This thread integrates with several key components of the application:
  * <ul>
  *     <li>{@link BroadcastManager} - Handles message broadcasting to all connected clients.</li>
- *     <li>{@link MessageHandlerChain} - Manages message processing and routing.</li>
+ *     <li>{@link MessageHandlerFilterChain} - Manages message processing and routing.</li>
  *     <li>{@link Session} - Maintains client-specific session data, enabling tracking of individual clients.</li>
  * </ul>
  * </p>
@@ -28,7 +28,7 @@ import java.net.Socket;
  * </p>
  *
  * @see BroadcastManager
- * @see MessageHandlerChain
+ * @see MessageHandlerFilterChain
  * @see Session
  */
 public class ClientHandlerThread implements Runnable {
@@ -63,7 +63,7 @@ public class ClientHandlerThread implements Runnable {
     public void run() {
         // Obtain instances of broadcast and message handling services.
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        MessageHandlerChain messageHandlerChain = MessageHandlerChain.getInstance();
+        MessageHandlerFilterChain messageHandlerFilterChain = MessageHandlerFilterChain.getInstance();
 
         try {
             // Initialize streams for reading from and writing to the client.
@@ -86,8 +86,8 @@ public class ClientHandlerThread implements Runnable {
             // Continuously read and process messages from the client until they disconnect.
             String clientMessage;
             while ((clientMessage = reader.readLine()) != null) {
-                // Process each client message through the message handler chain (MessageHandlerChain).
-                messageHandlerChain.process(session, clientMessage);
+                // Process each client message through the message handler chain (MessageHandlerFilterChain).
+                messageHandlerFilterChain.process(session, clientMessage);
             }
 
             // Notify all clients of the disconnection event.

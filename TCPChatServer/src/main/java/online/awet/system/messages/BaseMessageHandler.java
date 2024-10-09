@@ -39,7 +39,7 @@ public abstract class BaseMessageHandler implements MessageHandler {
      * <p>Implementing classes define the criteria for accepting or rejecting messages.</p>
      *
      * @param message The message to check for acceptance.
-     * @return True if the message should be handled by this handler; otherwise, false.
+     * @return {@code True} if the message should be handled by this handler; otherwise, {@code False}.
      */
     public abstract boolean accepts(String message);
 

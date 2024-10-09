@@ -3,17 +3,19 @@ package online.awet.system.messages;
 import online.awet.system.core.SystemUtils;
 import online.awet.system.sessions.Session;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Singleton class MessageHandlerChain is responsible for managing and processing
+ * Singleton class MessageHandlerFilterChain is responsible for managing and processing
  * client messages through a chain of registered {@code MessageHandler}.
  * Each handler in the chain can process messages in a unique way, based on the
  * message content and session information.
  *
  * <p>
- * The MessageHandlerChain dynamically loads and registers message handlers
+ * The MessageHandlerFilterChain dynamically loads and registers message handlers
  * annotated with {@code @RegisterMessageHandler} from a specified package.
  * This allows the application to easily extend or modify message handling
  * capabilities without changing core server code.
@@ -22,7 +24,7 @@ import java.util.Map;
  * <p>
  * Typical usage:
  * <pre>
- *     MessageHandlerChain.getInstance().process(session, message);
+ *     MessageHandlerFilterChain.getInstance().process(session, message);
  * </pre>
  * </p>
  *
@@ -30,12 +32,25 @@ import java.util.Map;
  * @see MessageHandler
  * @see SystemUtils#instantiateClassesAnnotatedBy(String, String)
  */
-public class MessageHandlerChain {
+public class MessageHandlerFilterChain {
 
     /**
-     * Singleton instance of MessageHandlerChain.
+     * Singleton instance of MessageHandlerFilterChain.
      */
-    private static MessageHandlerChain instance;
+    private static MessageHandlerFilterChain instance;
+
+    /**
+     * Provides global access to the singleton instance of MessageHandlerFilterChain.
+     * Initializes the instance if it does not already exist.
+     *
+     * @return The singleton instance of MessageHandlerFilterChain.
+     */
+    public static MessageHandlerFilterChain getInstance() {
+        if (instance == null) {
+            instance = new MessageHandlerFilterChain();
+        }
+        return instance;
+    }
 
     /**
      * Map storing registered message handlers. The key is the handler's class type,
@@ -44,12 +59,12 @@ public class MessageHandlerChain {
     private final Map<Class<? extends MessageHandler>, MessageHandler> messageHandlerMap = new HashMap<>();
 
     /**
-     * Private constructor that initializes the MessageHandlerChain.
+     * Private constructor that initializes the MessageHandlerFilterChain.
      * It loads and registers all message handlers annotated with {@code RegisterMessageHandler}
      * from the specified package.
      */
-    private MessageHandlerChain(){
-        System.out.println("Initializing MessageHandlerChain...");
+    private MessageHandlerFilterChain(){
+        System.out.println("Initializing MessageHandlerFilterChain...");
 
         // Load and register message handlers annotated with RegisterMessageHandler.
         messageHandlerMap.putAll(SystemUtils.instantiateClassesAnnotatedBy(
@@ -66,19 +81,6 @@ public class MessageHandlerChain {
     }
 
     /**
-     * Provides global access to the singleton instance of MessageHandlerChain.
-     * Initializes the instance if it does not already exist.
-     *
-     * @return The singleton instance of MessageHandlerChain.
-     */
-    public static MessageHandlerChain getInstance() {
-        if (instance == null) {
-            instance = new MessageHandlerChain();
-        }
-        return instance;
-    }
-
-    /**
      * Processes a message for a given session by passing it through all registered handlers.
      * Each handler in {@code messageHandlerMap} processes the message independently,
      * allowing for flexible and customizable message processing logic.
@@ -87,8 +89,11 @@ public class MessageHandlerChain {
      * @param message The client message to be processed by the chain of handlers.
      */
     public void process(Session session, String message) {
-        messageHandlerMap.forEach((klass, instance) -> {
-            instance.process(session, message);
-        });
+        for (MessageHandler handler : messageHandlerMap.values()) {
+            if (handler.accepts(message)) {
+                handler.process(session, message);
+                return;
+            }
+        }
     }
 }

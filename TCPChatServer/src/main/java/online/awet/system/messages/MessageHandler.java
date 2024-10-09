@@ -32,4 +32,25 @@ public interface MessageHandler {
      * @param message The message to be processed.
      */
     void process(Session session, String message);
+
+    /**
+     * Determines if this handler should process the provided message.
+     *
+     * <p>
+     * Each implementing class defines specific criteria for message acceptance,
+     * enabling the handler to filter messages based on their type or content.
+     * For example, a handler might only accept messages that start with a specific
+     * command prefix or follow a predefined format.
+     * </p>
+     *
+     * <p>
+     * The {@code accepts} method plays a critical role in handler selection, within
+     * a {@link MessageHandlerFilterChain}, where it allows the chain to stop processing
+     * once an appropriate handler is found.
+     * </p>
+     *
+     * @param message The message to evaluate for processing.
+     * @return {@code true} if the handler should process the message; otherwise, {@code false}.
+     */
+    boolean accepts(String message);
 }

@@ -7,12 +7,12 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * The {@code RegisterMessageHandler} annotation marks a {@link MessageHandler}
- * implementation for automatic registration within the {@link MessageHandlerChain}.
+ * implementation for automatic registration within the {@link MessageHandlerFilterChain}.
  *
  * <p>
  * When a class implementing {@code MessageHandler} is annotated with
  * {@code RegisterMessageHandler}, the application will detect and register
- * it in the {@code MessageHandlerChain} at startup, allowing it to participate
+ * it in the {@code MessageHandlerFilterChain} at startup, allowing it to participate
  * in the processing of client messages.
  * </p>
  *
@@ -30,7 +30,7 @@ import java.lang.annotation.RetentionPolicy;
  * }
  * </pre>
  *
- * @see MessageHandlerChain
+ * @see MessageHandlerFilterChain
  * @see MessageHandler
  * @see DefaultHandler
  */
