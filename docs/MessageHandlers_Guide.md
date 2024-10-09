@@ -1,45 +1,20 @@
-### Guide: Working with Message Handlers in the Chat Application
+# Guide to Creating and Registering New MessageHandlers
 
-In this guide, we’ll explore the `MessageHandler` system used in the chat application, including how it processes messages, handles broadcasts, and allows developers to extend the functionality by adding custom handlers.
+To extend the functionality of the application. You will need to create a new `MessageHandler` implementation. 
 
-### Overview of the Message Handling System
+Each MessageHandler implementation processes a message from the client by first validating whether it is equipped to handle the specific message type. If the message is accepted, the handler proceeds to execute its designated handling routine.
 
-The chat application uses a flexible message handling system based on the `MessageHandler` interface, where different implementations can handle specific types of messages. This modular approach allows you to extend the application with new functionalities by simply creating additional message handlers.
+This guide covers implementing a custom `MessageHandler`, annotating it for automatic registration, and verifying it's successfully loaded by the `MessageHandlerFilterChain`.
 
-#### Key Components
+### Step 1: Create a New `MessageHandler` Implementation
 
-1. **`MessageHandler` Interface**: This defines the contract for all message handlers in the system, requiring a `process(Session session, String message)` method to process incoming messages.
-2. **`BaseMessageHandler` Abstract Class**: Provides a base implementation that simplifies creating message handlers by offering `accepts(String message)` and `handleMessage(Session session, String message)` methods.
-3. **`RegisterMessageHandler` Annotation**: Automatically registers any `MessageHandler` implementation annotated with `@RegisterMessageHandler` into the `MessageHandlerFilterChain`.
-4. **`MessageHandlerFilterChain` Class**: Acts as a central manager, processing messages by iterating over each registered `MessageHandler` and invoking those that accept the given message.
+To create a new `MessageHandler` implementation, start by defining a class that extends `BaseMessageHandler`. Within this class, implement the `accepts` and `handleMessage` methods. The `accepts` method should specify the types of messages the handler will process, while the `handleMessage` method will contain the logic for processing these messages.
 
-### How Message Handlers Work in the Application
+The client will reformat commands like `"/help"` (entered by the user) into `"HELP:"` which is more understandable/parsable by the server. If you want to know more, check the `ClientMessageParser` class documentation.
 
-1. **Message Processing**:
-    - The `MessageHandlerFilterChain` class receives each incoming message and loops through all registered handlers.
-    - Each handler determines if it should handle the message using its `accepts` method. If `accepts` returns `true`, the handler processes the message by executing its `handleMessage` method.
-    - This design enables multiple handlers to process a single message, allowing flexible and diverse responses.
+Next, add the `@RegisterMessageHandler` annotation to the class. This annotation ensures that the handler is automatically registered in the `MessageHandlerFilterChain`, allowing it to participate in the message handling workflow.
 
-2. **Broadcasting and Session Management**:
-    - The application uses the `BroadcastManager` to send messages to all connected clients or to specific clients based on their `Session`.
-    - In the example `DefaultHandler`, all messages are broadcast to connected users with the sender's session ID as a prefix.
-
-### Creating a New Message Handler
-
-To add new functionality to the chat application, you can create custom `MessageHandler` classes. Here’s how to implement a new handler that processes commands prefixed with “/help” and provides help information to the client.
-
-#### Step 1: Define the Custom Handler Class
-
-1. Create a new class, e.g., `HelpCommandHandler`, in the `online.awet.system.messages.handlers` package.
-2. Extend `BaseMessageHandler` to take advantage of the `accepts` and `handleMessage` methods.
-3. Annotate the class with `@RegisterMessageHandler` to ensure it is automatically registered with the `MessageHandlerFilterChain`.
-
-#### Step 2: Implement the Handler Logic
-
-1. Override the `accepts(String message)` method to check if the message begins with `/help`.
-2. Override `handleMessage(Session session, String message)` to define the response logic. In this case, send a help message back to the user.
-
-Here’s the code:
+#### Example: Creating a `HelpCommandHandler`
 
 ```java
 package online.awet.system.messages.handlers;
@@ -52,49 +27,59 @@ import online.awet.system.sessions.Session;
 @RegisterMessageHandler
 public class HelpCommandHandler extends BaseMessageHandler {
 
-    /**
-     * Checks if this handler should process the message. This handler
-     * only accepts messages that start with "/help".
-     *
-     * @param message The client message to be evaluated.
-     * @return {@code true} if the message starts with "/help"; otherwise, {@code false}.
-     */
-    @Override
-    public boolean accepts(String message) {
-        return message.startsWith("/help");
-    }
+   /**
+    * Checks if this handler should process the message. This handler
+    * only accepts messages that start with "HELP:".
+    *
+    * @param message The client message to be evaluated.
+    * @return {@code true} if the message starts with "HELP:"; otherwise, {@code false}.
+    */
+   @Override
+   public boolean accepts(String message) {
+      return message.startsWith("HELP:");
+   }
 
-    /**
-     * Processes the help command by sending a help message back to the requesting client.
-     *
-     * @param session The session associated with the client sending the message.
-     * @param message The client message to be processed.
-     */
-    @Override
-    public void handleMessage(Session session, String message) {
-        BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        
-        // Sample help information to send back to the client
-        String helpMessage = "Available commands:\n" +
-                             "/help - Display available commands\n" +
-                             "/whisper <user> <message> - Send a private message\n" +
-                             "/quit - Disconnect from the chat\n";
-                             
-        broadcastManager.serverDirectMessage(helpMessage, session);
-    }
+   /**
+    * Processes the help command by sending a help message back to the requesting client.
+    *
+    * @param session The session associated with the client sending the message.
+    * @param message The client message to be processed.
+    */
+   @Override
+   public void handleMessage(Session session, String message) {
+      BroadcastManager broadcastManager = BroadcastManager.getInstance();
+
+      // Sample help information to send back to the client
+      String helpMessage = "Available commands:\n" +
+              "/help - Display available commands\n" +
+              "/whisper <user> <message> - Send a private message\n" +
+              "/quit - Disconnect from the chat\n";
+
+      broadcastManager.serverDirectMessage(helpMessage, session);
+   }
 }
 ```
 
-#### Step 3: Verify and Test
+### Step 2: Ensure the Handler is Registered in `MessageHandlerFilterChain`
 
-1. Start the chat application server.
-2. Connect a client and send `/help`. You should receive a response with the list of available commands.
+With the `@RegisterMessageHandler` annotation, the `MessageHandlerFilterChain` will automatically register `HelpCommandHandler` (or any other annotated custom handler).
 
-### Adding More Complex Handlers
+On start-up the application will execute the `SystemUtils.instantiateClassesAnnotatedBy` method to dynamically load into `MessageHandlerFilterChain` all classes annotated with `@RegisterMessageHandler` in the `online.awet.system.messages.handlers` package by default (or any additional configured package).
 
-To further extend the application, you can add handlers that:
-- Respond to specific commands, like private messaging (`/whisper <user> <message>`).
-- Process structured messages, such as JSON or XML.
-- Implement custom logic, such as logging or filtering specific messages.
+### Step 3: Test the New `MessageHandler`
 
-Each new handler can follow the same structure, defining criteria in `accepts` and implementing behavior in `handleMessage`.
+1. **Start the application**:
+
+2. **Send Test Messages**:
+   - Send the message `/help` from the client to confirm that `HelpCommandHandler` accepts and processes it.
+   - Confirm that the client receives the help message as defined in handleMessage and responds as expected.
+
+### Application Flow for ClientHandlers
+
+The `ClientHandlerThread` initializes `MessageHandlerFilterChain` and processes each message received from a client. Here’s how it flows:
+
+- **Client connects** → `ClientHandlerThread` greets and adds client to broadcast.
+- **Client sends a message** → `MessageHandlerFilterChain` checks each registered handler.
+- **Message matches a handler** → The handler’s `process` method is invoked, processing the message through `handleMessage`.
+
+By following these steps, you can create new `MessageHandler` implementations that are automatically registered and processed in your chat application, allowing flexible, dynamic message handling for different types of commands or messages.
