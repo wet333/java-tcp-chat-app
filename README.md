@@ -1,2 +1,3 @@
-# java-packages
-A collection of reusable Java packages and components.
+# java-tcp-chat-app
+
+A simple CLI chat application.
