@@ -6,7 +6,7 @@ import online.awet.system.messages.BaseMessageHandler;
 import online.awet.system.messages.RegisterMessageHandler;
 import online.awet.system.sessions.Session;
 import online.awet.system.sessions.UserSession;
-import online.awet.system.userManagement.AccountsManager;
+import online.awet.system.userManagement.FileBasedAccountManager;
 import online.awet.system.userManagement.User;
 
 import java.util.Map;
@@ -21,7 +21,7 @@ public class UserLoginHandler extends BaseMessageHandler {
     @Override
     public void handleMessage(Session session, String message) {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        AccountsManager accountsManager = AccountsManager.getInstance();
+        FileBasedAccountManager accountManager = FileBasedAccountManager.getInstance();
         // TODO: Add message parsing to the baseMessageHanlder base functionality???
         Map<String, String> data = ClientMessageParser.parse(message);
 
@@ -35,7 +35,7 @@ public class UserLoginHandler extends BaseMessageHandler {
                 throw new Exception("Missing credentials username or password");
             }
 
-            User user = accountsManager.getAccount(username, password);
+            User user = accountManager.getAccount(username, password);
 
             if (user == null) {
                 throw new Exception("Invalid username or password");

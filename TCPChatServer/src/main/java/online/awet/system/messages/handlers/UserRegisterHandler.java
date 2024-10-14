@@ -5,7 +5,7 @@ import online.awet.system.core.parser.ClientMessageParser;
 import online.awet.system.messages.BaseMessageHandler;
 import online.awet.system.messages.RegisterMessageHandler;
 import online.awet.system.sessions.Session;
-import online.awet.system.userManagement.AccountsManager;
+import online.awet.system.userManagement.FileBasedAccountManager;
 
 import java.util.Map;
 
@@ -20,7 +20,7 @@ public class UserRegisterHandler extends BaseMessageHandler {
     @Override
     public void handleMessage(Session session, String message) {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        AccountsManager accountsManager = AccountsManager.getInstance();
+        FileBasedAccountManager accountManager = FileBasedAccountManager.getInstance();
         Map<String, String> data = ClientMessageParser.parse(message);
 
         System.out.println(data);
@@ -32,7 +32,7 @@ public class UserRegisterHandler extends BaseMessageHandler {
             if (username == null || password == null) {
                 throw new Exception("Missing username or password.");
             }
-            accountsManager.addAccount(data.get("username"), data.get("password"));
+            accountManager.addAccount(data.get("username"), data.get("password"));
 
             broadcastManager.serverDirectMessage(
                     "User " + data.get("username") + " has been registered.",
