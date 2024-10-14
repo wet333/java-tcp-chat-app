@@ -92,7 +92,9 @@ public class MessageHandlerFilterChain {
         for (MessageHandler handler : messageHandlerMap.values()) {
             if (handler.accepts(message)) {
                 handler.process(session, message);
-                return;
+
+                // Uncomment if you need the application to only accept one handler per message
+                //return;
             }
         }
     }

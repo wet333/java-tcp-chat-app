@@ -2,8 +2,8 @@ package online.awet.threads;
 
 import online.awet.system.broadcast.BroadcastManager;
 import online.awet.system.messages.MessageHandlerFilterChain;
-import online.awet.system.sessions.GuestSession;
 import online.awet.system.sessions.Session;
+import online.awet.system.sessions.UserSession;
 
 import java.io.*;
 import java.net.Socket;
@@ -57,7 +57,7 @@ public class ClientHandlerThread implements Runnable {
     public ClientHandlerThread(Socket socket) {
         this.socket = socket;
         this.greetUser = true;
-        this.session = new GuestSession();
+        this.session = new UserSession();
     }
 
     public void run() {

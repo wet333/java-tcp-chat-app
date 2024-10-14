@@ -9,7 +9,7 @@ import online.awet.system.sessions.Session;
 
 import java.util.Map;
 
-@RegisterMessageHandler
+//@RegisterMessageHandler
 public class CommandEchoHandler extends BaseMessageHandler {
     @Override
     public boolean accepts(String message) {

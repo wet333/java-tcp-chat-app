@@ -5,6 +5,7 @@ import online.awet.system.messages.BaseMessageHandler;
 import online.awet.system.messages.MessageHandlerFilterChain;
 import online.awet.system.messages.RegisterMessageHandler;
 import online.awet.system.sessions.Session;
+import online.awet.system.sessions.UserSession;
 
 /**
  * {@code DefaultHandler} is a catch-all message handler that processes any client message
@@ -48,7 +49,8 @@ public class DefaultHandler extends BaseMessageHandler {
     @Override
     public void handleMessage(Session session, String message) {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        String messageMod = session.getSessionId() + ": " + message;
+        String identifier = ((UserSession) session).getAlias() != null ? ((UserSession) session).getAlias() : session.getSessionId();
+        String messageMod =  identifier + ": " + message;
         broadcastManager.broadcast(messageMod, session);
     }
 }
