@@ -23,7 +23,7 @@ import online.awet.system.sessions.UserSession;
  * @see BaseMessageHandler
  * @see BroadcastManager
  */
-@RegisterMessageHandler
+@RegisterMessageHandler(priority = 0)
 public class DefaultHandler extends BaseMessageHandler {
 
     /**

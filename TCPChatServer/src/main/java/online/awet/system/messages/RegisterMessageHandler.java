@@ -36,4 +36,5 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RegisterMessageHandler {
+    int priority() default 100; // Default priority is 100 if not specified
 }

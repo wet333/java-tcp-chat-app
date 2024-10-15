@@ -4,30 +4,14 @@ import online.awet.system.Configurations;
 import online.awet.system.core.SystemUtils;
 import online.awet.system.sessions.Session;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- * Singleton class MessageHandlerFilterChain is responsible for managing and processing
- * client messages through a chain of registered {@code MessageHandler}.
- * Each handler in the chain can process messages in a unique way, based on the
- * message content and session information.
- *
- * <p>
- * The MessageHandlerFilterChain dynamically loads and registers message handlers
- * annotated with {@code @RegisterMessageHandler} from a specified package.
- * This allows the application to easily extend or modify message handling
- * capabilities without changing core server code.
- * </p>
- *
- * <p>
- * Typical usage:
- * <pre>
- *     MessageHandlerFilterChain.getInstance().process(session, message);
- * </pre>
- * </p>
+ * MessageHandlerFilterChain manages a chain of {@code MessageHandler} to process client messages.
+ * This singleton class dynamically loads and registers handlers annotated with
+ * {@code @RegisterMessageHandler} from a specified package, allowing flexible and
+ * extendable message processing.
  *
  * @see Session
  * @see MessageHandler
@@ -35,9 +19,6 @@ import java.util.Map;
  */
 public class MessageHandlerFilterChain {
 
-    /**
-     * Singleton instance of MessageHandlerFilterChain.
-     */
     private static MessageHandlerFilterChain instance;
 
     /**
@@ -54,29 +35,43 @@ public class MessageHandlerFilterChain {
     }
 
     /**
-     * Map storing registered message handlers. The key is the handler's class type,
+     * Map for storing registered message handlers. The key is the handler's class type,
      * and the value is the handler instance.
      */
-    private final Map<Class<? extends MessageHandler>, MessageHandler> messageHandlerMap = new HashMap<>();
+    private final Map<Class<? extends MessageHandler>, MessageHandler> messageHandlerMap = new LinkedHashMap<>();
 
     /**
-     * Private constructor that initializes the MessageHandlerFilterChain.
-     * It loads and registers all message handlers annotated with {@code RegisterMessageHandler}
-     * from the specified package.
+     * Initializes the filter chain, loading handlers annotated with {@code RegisterMessageHandler}
+     * and sorting them by priority.
      */
     private MessageHandlerFilterChain(){
         System.out.println("Initializing MessageHandlerFilterChain...");
 
         // Load and register message handlers annotated with RegisterMessageHandler.
-        messageHandlerMap.putAll(SystemUtils.instantiateClassesAnnotatedBy(
+        Map<Class<? extends MessageHandler>, MessageHandler> tempMap = new HashMap<>(SystemUtils.instantiateClassesAnnotatedBy(
                 "RegisterMessageHandler",
                 "online.awet.system.messages.handlers"
         ));
 
+        // Sort the map by priority and store in a LinkedHashMap to preserve order
+        Map<Class<? extends MessageHandler>, MessageHandler> sortedByPriority = tempMap.entrySet()
+                .stream()
+                .sorted((entry1, entry2) -> Integer.compare(
+                        getMessageHandlerPriority(entry2.getKey()),
+                        getMessageHandlerPriority(entry1.getKey())
+                ))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1,
+                        LinkedHashMap::new
+                ));
+        messageHandlerMap.putAll(sortedByPriority);
+
         // Log loaded handlers to the console for confirmation.
         System.out.println("Loaded handlers: { ");
-        messageHandlerMap.forEach((aClass, handler) -> {
-            System.out.println("    " + aClass.getName());
+        sortedByPriority.forEach((aClass, handler) -> {
+            System.out.println("    " + aClass.getName() + ", Priority: " + getMessageHandlerPriority(aClass));
         });
         System.out.println("} ");
     }
@@ -102,6 +97,24 @@ public class MessageHandlerFilterChain {
                     return;
                 }
             }
+        }
+    }
+
+    /**
+     * Retrieves the priority level of a message handler class based on its
+     * {@code RegisterMessageHandler} annotation. Used for sorting handlers in
+     * the chain by priority.
+     *
+     * @param clazz the class of the message handler
+     * @return the priority specified in {@code RegisterMessageHandler}
+     * @throws IllegalArgumentException if the class is not annotated with {@code RegisterMessageHandler}
+     */
+    private int getMessageHandlerPriority(Class<?> clazz) {
+        if (clazz.isAnnotationPresent(RegisterMessageHandler.class)) {
+            RegisterMessageHandler annotation = clazz.getAnnotation(RegisterMessageHandler.class);
+            return annotation.priority();
+        } else {
+            throw new IllegalArgumentException("Class " + clazz.getName() + " is not annotated with @RegisterMessageHandler.");
         }
     }
 }
