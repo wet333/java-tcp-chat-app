@@ -1,18 +1,26 @@
-# Guide to Creating and Registering New MessageHandlers
+# Guide for Creating and Registering New MessageHandlers
 
-To extend the functionality of the application. You will need to create a new `MessageHandler` implementation. 
+This guide covers the implementation of a custom `MessageHandler` in order to add new features, and then verifying it's up and running.
 
-Each MessageHandler implementation processes a message from the client by first validating whether it is equipped to handle the specific message type. If the message is accepted, the handler proceeds to execute its designated handling routine.
+The `MessageHandlerFilterChain` intercepts each message sent by the client to the server and sequentially checks each registered MessageHandler to see if it `accepts` the message. Once a handler `accepts` the message, the `MessageHandlerFilterChain` stops further checks, allowing the first accepted handler to execute its designated handling routine.
 
-This guide covers implementing a custom `MessageHandler`, annotating it for automatic registration, and verifying it's successfully loaded by the `MessageHandlerFilterChain`.
+> Take a look into `Configurations.ALLOW_MULTIPLE_MESSAGE_HANDLERS` for allowing multiple handlers per message.
 
-### Step 1: Create a New `MessageHandler` Implementation
+<hr>
 
-To create a new `MessageHandler` implementation, start by defining a class that extends `BaseMessageHandler`. Within this class, implement the `accepts` and `handleMessage` methods. The `accepts` method should specify the types of messages the handler will process, while the `handleMessage` method will contain the logic for processing these messages.
+### Creating a New `MessageHandler` Implementation
 
-The client will reformat commands like `"/help"` (entered by the user) into `"HELP:"` which is more understandable/parsable by the server. If you want to know more, check the `ClientMessageParser` class documentation.
+To create a new `MessageHandler` implementation, start by defining a class that extends `BaseMessageHandler`. Within this class, implement the `accepts` and `handleMessage` methods. 
 
-Next, add the `@RegisterMessageHandler` annotation to the class. This annotation ensures that the handler is automatically registered in the `MessageHandlerFilterChain`, allowing it to participate in the message handling workflow.
+The `accepts` method will check the message sent by the client and decide whether it's valid or not. In case of returning `true`, the `handleMessage` method will be executed.
+
+> Please make sure to check the client's message (temporarily logging it to the console/terminal), as the client applies certain transformations to messages before sending them to the server side.
+> 
+> The client will reformat commands like `"/help"` (entered by the user) into `"HELP:"` which is more understandable/parsable by the server. If you want to know more, check the `ClientMessageParser` class documentation.
+
+Next, ensure the handler is registered in `MessageHandlerFilterChain` adding the `@RegisterMessageHandler` annotation at the start of the class declaration, this will allow it to participate in the message handling pipeline.
+
+On start-up, the application will dynamically load into `MessageHandlerFilterChain` all classes annotated with `@RegisterMessageHandler` in the `online.awet.system.messages.handlers` package by default (or any additional configured package).
 
 #### Example: Creating a `HelpCommandHandler`
 
@@ -60,13 +68,9 @@ public class HelpCommandHandler extends BaseMessageHandler {
 }
 ```
 
-### Step 2: Ensure the Handler is Registered in `MessageHandlerFilterChain`
+<hr>
 
-With the `@RegisterMessageHandler` annotation, the `MessageHandlerFilterChain` will automatically register `HelpCommandHandler` (or any other annotated custom handler).
-
-On start-up the application will execute the `SystemUtils.instantiateClassesAnnotatedBy` method to dynamically load into `MessageHandlerFilterChain` all classes annotated with `@RegisterMessageHandler` in the `online.awet.system.messages.handlers` package by default (or any additional configured package).
-
-### Step 3: Test the New `MessageHandler`
+### Testing our new Handler
 
 1. **Start the application**:
 
@@ -74,12 +78,12 @@ On start-up the application will execute the `SystemUtils.instantiateClassesAnno
    - Send the message `/help` from the client to confirm that `HelpCommandHandler` accepts and processes it.
    - Confirm that the client receives the help message as defined in handleMessage and responds as expected.
 
-### Application Flow for ClientHandlers
+### Application Flow for Messages
 
 The `ClientHandlerThread` initializes `MessageHandlerFilterChain` and processes each message received from a client. Here’s how it flows:
 
 - **Client connects** → `ClientHandlerThread` greets and adds client to broadcast.
-- **Client sends a message** → `MessageHandlerFilterChain` checks each registered handler.
-- **Message matches a handler** → The handler’s `process` method is invoked, processing the message through `handleMessage`.
+- **Client sends a message** → `MessageHandlerFilterChain` checks if any registered handler accepts the message.
+- **Message matches a handler** → The handler’s `handleMessage` method is executed.
 
 By following these steps, you can create new `MessageHandler` implementations that are automatically registered and processed in your chat application, allowing flexible, dynamic message handling for different types of commands or messages.

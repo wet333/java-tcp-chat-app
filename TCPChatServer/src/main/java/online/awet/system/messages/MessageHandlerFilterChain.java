@@ -1,5 +1,6 @@
 package online.awet.system.messages;
 
+import online.awet.system.Configurations;
 import online.awet.system.core.SystemUtils;
 import online.awet.system.sessions.Session;
 
@@ -81,20 +82,25 @@ public class MessageHandlerFilterChain {
     }
 
     /**
-     * Processes a message for a given session by passing it through all registered handlers.
-     * Each handler in {@code messageHandlerMap} processes the message independently,
-     * allowing for flexible and customizable message processing logic.
+     * Passes a client message through each registered {@code MessageHandler} in
+     * {@code messageHandlerMap} for processing.
      *
-     * @param session The session associated with the message, providing context for handling.
-     * @param message The client message to be processed by the chain of handlers.
+     * <p>If {@code Configurations.ALLOW_MULTIPLE_MESSAGE_HANDLERS} is {@code false},
+     * processing stops after the first handler that accepts the message; otherwise,
+     * all accepting handlers will process it.</p>
+     *
+     * @param session The session context for message processing.
+     * @param message The client message to process.
+     * @see Configurations#ALLOW_MULTIPLE_MESSAGE_HANDLERS
      */
     public void process(Session session, String message) {
         for (MessageHandler handler : messageHandlerMap.values()) {
             if (handler.accepts(message)) {
                 handler.process(session, message);
 
-                // Uncomment if you need the application to only accept one handler per message
-                //return;
+                if (!Configurations.ALLOW_MULTIPLE_MESSAGE_HANDLERS) {
+                    return;
+                }
             }
         }
     }

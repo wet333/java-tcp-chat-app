@@ -8,7 +8,6 @@ package online.awet.system.sessions;
  * Implementations of this interface manage different types of sessions with specific behaviors.
  * Current implementations include:
  * <ul>
- *     <li>{@link online.awet.system.sessions.GuestSession} - A session type for guests or unauthenticated users.</li>
  *     <li>{@link online.awet.system.sessions.UserSession} - A session type for authenticated or logged-in users.</li>
  * </ul>
  * </p>

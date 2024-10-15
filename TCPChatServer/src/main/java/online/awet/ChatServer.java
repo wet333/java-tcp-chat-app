@@ -1,5 +1,6 @@
 package online.awet;
 
+import online.awet.system.Configurations;
 import online.awet.threads.ClientHandlerThread;
 
 import java.io.IOException;
@@ -26,17 +27,6 @@ import java.util.concurrent.Executors;
 public class ChatServer {
 
     /**
-     * The port number that the server listens on for incoming connections.
-     */
-    private static final int PORT = 7560;
-
-    /**
-     * The maximum number of threads in the thread pool.
-     * This limits the number of concurrent clients the server can handle.
-     */
-    private static final int THREAD_POOL_COUNT = 12;
-
-    /**
      * Main method that initializes and starts the chat server.
      * It creates a server socket on the specified port and waits
      * for client connections.
@@ -45,10 +35,12 @@ public class ChatServer {
      */
     public static void main(String[] args) {
         // Create a fixed thread pool with a predefined maximum number of threads.
-        ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_COUNT);
+        ExecutorService threadPool = Executors.newFixedThreadPool(Configurations.THREAD_POOL_COUNT);
 
-        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("Chat server started on port: " + PORT);
+        int portNumber = Configurations.PORT;
+
+        try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
+            System.out.println("Chat server started on port: " + portNumber);
 
             // Continuously accept client connections.
             while (true) {
@@ -63,7 +55,7 @@ public class ChatServer {
             }
         } catch (IOException e) {
             // Handle exceptions related to I/O and server socket.
-            System.out.println("Could not create server on port: " + PORT);
+            System.out.println("Could not create server on port: " + portNumber);
             e.printStackTrace();
             System.out.println("Terminating server...");
         } finally {
