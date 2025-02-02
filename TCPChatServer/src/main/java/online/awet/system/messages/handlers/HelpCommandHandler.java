@@ -1,8 +1,9 @@
 package online.awet.system.messages.handlers;
 
 import online.awet.system.broadcast.BroadcastManager;
-import online.awet.system.messages.BaseMessageHandler;
-import online.awet.system.messages.RegisterMessageHandler;
+import online.awet.system.messages.core.BaseMessageHandler;
+import online.awet.system.messages.core.MessageHandlerRegistry;
+import online.awet.system.messages.core.RegisterMessageHandler;
 import online.awet.system.sessions.Session;
 
 @RegisterMessageHandler
@@ -34,10 +35,7 @@ public class HelpCommandHandler extends BaseMessageHandler {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
 
         // Sample help information to send back to the client
-        String helpMessage = "Available commands:\n" +
-                "/help - Display available commands\n" +
-                "/whisper <user> <message> - Send a private message\n" +
-                "/quit - Disconnect from the chat\n";
+        String helpMessage = MessageHandlerRegistry.getInstance().getMessageHandlerMap().toString();
 
         broadcastManager.serverDirectMessage(helpMessage, session);
     }

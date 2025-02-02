@@ -1,4 +1,4 @@
-package online.awet.system.messages;
+package online.awet.system.messages.core;
 
 import online.awet.system.sessions.Session;
 

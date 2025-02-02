@@ -28,8 +28,8 @@ On start-up, the application will dynamically load into `MessageHandlerFilterCha
 package online.awet.system.messages.handlers;
 
 import online.awet.system.broadcast.BroadcastManager;
-import online.awet.system.messages.BaseMessageHandler;
-import online.awet.system.messages.RegisterMessageHandler;
+import online.awet.system.messages.core.BaseMessageHandler;
+import online.awet.system.messages.core.RegisterMessageHandler;
 import online.awet.system.sessions.Session;
 
 @RegisterMessageHandler

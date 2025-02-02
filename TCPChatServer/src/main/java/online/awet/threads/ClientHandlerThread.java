@@ -1,7 +1,7 @@
 package online.awet.threads;
 
 import online.awet.system.broadcast.BroadcastManager;
-import online.awet.system.messages.MessageHandlerFilterChain;
+import online.awet.system.messages.core.MessageHandlerFilterChain;
 import online.awet.system.sessions.Session;
 import online.awet.system.sessions.UserSession;
 
@@ -86,6 +86,7 @@ public class ClientHandlerThread implements Runnable {
             // Continuously read and process messages from the client until they disconnect.
             String clientMessage;
             while ((clientMessage = reader.readLine()) != null) {
+                System.out.println("Msg: " + clientMessage);
                 // Process each client message through the message handler chain (MessageHandlerFilterChain).
                 messageHandlerFilterChain.process(session, clientMessage);
             }

@@ -60,7 +60,7 @@ public class Translator {
      */
     public String translate(String clientMessage) {
         if (clientMessage == null || clientMessage.isBlank()) {
-            throw new TranslatorException("Cannot translate an empty message. Please enter a string value to validate.");
+            throw new TranslatorException("Empty message, please try again.");
         }
 
         List<String> messageParts = new ArrayList<>(List.of(clientMessage.split(" ")));
@@ -68,7 +68,7 @@ public class Translator {
 
         String command = messageParts.removeFirst();
         if ("/".equals(command)) {
-            throw new TranslatorException("Error, empty command: \"/\"");
+            throw new TranslatorException("Error, Empty command: \"/\"?");
         }
         if (command.startsWith("/")) {
             result.append(String.format(COMMAND_HEADER_FORMAT, camelToHyphenatedCaps(command.replace("/", ""))));
@@ -80,14 +80,20 @@ public class Translator {
                 String value = messageParts.removeFirst();
 
                 if (!key.startsWith("-")) {
-                    throw new TranslatorException("Invalid message, on: " + clientMessage.replace(key, "<!>" + key + "<!>"));
+                    throw new TranslatorException(
+                            "Invalid message, on: " + clientMessage.replace(key, "<!>" + key + "<!>")
+                            + "\n" + "Correct usage: /command -key1 value1 -key2 value2."
+                    );
                 }
                 key = key.replace("-", "");
 
                 result.append(String.format(KEY_VALUE_PAIR_FORMAT, key, value));
 
             } catch (NoSuchElementException e) {
-                throw new TranslatorException("Missing key or value, message: " + clientMessage);
+                throw new TranslatorException(
+                        "Missing key or value, message: " + clientMessage +
+                        "\n" + "Correct usage: /command -key1 value1 -key2 value2."
+                );
             }
         }
         return result.toString();
