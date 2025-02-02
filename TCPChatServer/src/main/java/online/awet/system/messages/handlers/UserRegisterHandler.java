@@ -3,14 +3,16 @@ package online.awet.system.messages.handlers;
 import online.awet.system.broadcast.BroadcastManager;
 import online.awet.system.core.parser.ClientMessageParser;
 import online.awet.system.messages.core.BaseMessageHandler;
+import online.awet.system.messages.core.MessageHandler;
 import online.awet.system.messages.core.RegisterMessageHandler;
+import online.awet.system.messages.handlers.extensions.HelpProvider;
 import online.awet.system.sessions.Session;
 import online.awet.system.userManagement.FileBasedAccountManager;
 
 import java.util.Map;
 
 @RegisterMessageHandler
-public class UserRegisterHandler extends BaseMessageHandler {
+public class UserRegisterHandler extends BaseMessageHandler implements HelpProvider {
 
     @Override
     public boolean accepts(String message) {
@@ -44,5 +46,15 @@ public class UserRegisterHandler extends BaseMessageHandler {
                     session
             );
         }
+    }
+
+    @Override
+    public String getHelp() {
+        return "/register -username <username> -password <password>";
+    }
+
+    @Override
+    public String getDescription() {
+        return "/register: Allows you to register.";
     }
 }

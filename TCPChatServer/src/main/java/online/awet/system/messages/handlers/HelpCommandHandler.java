@@ -45,9 +45,8 @@ public class HelpCommandHandler extends BaseMessageHandler {
         helpMessage.append("\n\tCommands: \n");
 
         hanlderList.values().forEach(handler -> {
-            if (handler instanceof HelpProvider) {
-                HelpProvider helpProvider = (HelpProvider) handler;
-                helpMessage.append("\t\t" + helpProvider.getDescription() + "\n");
+            if (handler instanceof HelpProvider helpProvider) {
+                helpMessage.append("\t\t").append(helpProvider.getDescription()).append("\n");
             }
         });
 
