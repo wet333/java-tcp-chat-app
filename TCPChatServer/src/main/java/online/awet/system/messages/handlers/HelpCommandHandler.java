@@ -2,9 +2,13 @@ package online.awet.system.messages.handlers;
 
 import online.awet.system.broadcast.BroadcastManager;
 import online.awet.system.messages.core.BaseMessageHandler;
+import online.awet.system.messages.core.MessageHandler;
 import online.awet.system.messages.core.MessageHandlerRegistry;
 import online.awet.system.messages.core.RegisterMessageHandler;
+import online.awet.system.messages.handlers.extensions.HelpProvider;
 import online.awet.system.sessions.Session;
+
+import java.util.Map;
 
 @RegisterMessageHandler
 public class HelpCommandHandler extends BaseMessageHandler {
@@ -25,7 +29,8 @@ public class HelpCommandHandler extends BaseMessageHandler {
     }
 
     /**
-     * Processes the help command by sending a help message back to the requesting client.
+     * List the descriptions from all registered MessageHandlers that implements
+     * the HelpProvider interface.
      *
      * @param session The session associated with the client sending the message.
      * @param message The client message to be processed.
@@ -33,10 +38,21 @@ public class HelpCommandHandler extends BaseMessageHandler {
     @Override
     public void handleMessage(Session session, String message) {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
+        StringBuilder helpMessage = new StringBuilder();
 
-        // Sample help information to send back to the client
-        String helpMessage = MessageHandlerRegistry.getInstance().getMessageHandlerMap().toString();
+        Map<Class<? extends MessageHandler>, MessageHandler> hanlderList = MessageHandlerRegistry.getInstance().getMessageHandlerMap();
 
-        broadcastManager.serverDirectMessage(helpMessage, session);
+        helpMessage.append("\n\tCommands: \n");
+
+        hanlderList.values().forEach(handler -> {
+            if (handler instanceof HelpProvider) {
+                HelpProvider helpProvider = (HelpProvider) handler;
+                helpMessage.append("\t\t" + helpProvider.getDescription() + "\n");
+            }
+        });
+
+        helpMessage.append("\n");
+
+        broadcastManager.serverDirectMessage(helpMessage.toString(), session);
     }
 }

@@ -3,7 +3,9 @@ package online.awet.system.messages.handlers;
 import online.awet.system.broadcast.BroadcastManager;
 import online.awet.system.core.parser.ClientMessageParser;
 import online.awet.system.messages.core.BaseMessageHandler;
+import online.awet.system.messages.core.MessageHandlerFilterChain;
 import online.awet.system.messages.core.RegisterMessageHandler;
+import online.awet.system.messages.handlers.extensions.HelpProvider;
 import online.awet.system.sessions.Session;
 import online.awet.system.sessions.UserSession;
 import online.awet.system.userManagement.FileBasedAccountManager;
@@ -12,7 +14,7 @@ import online.awet.system.userManagement.User;
 import java.util.Map;
 
 @RegisterMessageHandler
-public class UserLoginHandler extends BaseMessageHandler {
+public class UserLoginHandler extends BaseMessageHandler implements HelpProvider {
     @Override
     public boolean accepts(String message) {
         return message.startsWith("LOGIN:");
@@ -55,5 +57,15 @@ public class UserLoginHandler extends BaseMessageHandler {
                     session
             );
         }
+    }
+
+    @Override
+    public String getHelp() {
+        return "Usage: /login -username <username> -password <password>";
+    }
+
+    @Override
+    public String getDescription() {
+        return "/login: Allows a registered user to login.";
     }
 }
