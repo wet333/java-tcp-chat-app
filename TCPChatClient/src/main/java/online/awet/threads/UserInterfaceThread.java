@@ -43,6 +43,10 @@ public class UserInterfaceThread implements Runnable {
                 if (cliScanner.hasNextLine()) {
                     String userInput = cliScanner.nextLine();
 
+                    if (userInput == null || userInput.isBlank()) {
+                        throw new Exception("Input is null or empty.");
+                    }
+
                     writer.write(userInput);
                     writer.newLine();
                     writer.flush();
