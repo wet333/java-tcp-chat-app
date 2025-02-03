@@ -54,7 +54,7 @@ public class DefaultHandler extends BaseMessageHandler {
         // Any command that has no handlers will reach this point, to prevent leaking data accidentally
         // Send a private error msg to the user.
         if (ClientMessageParser.isACommand(message)) {
-            message = "Invalid command: " + message.replace(":", "") + ". There are no handlers for this command.";
+            message = "Invalid command: " + message + ". There are no handlers for this command.";
             broadcastManager.serverDirectMessage(message, session);
             return;
         }
