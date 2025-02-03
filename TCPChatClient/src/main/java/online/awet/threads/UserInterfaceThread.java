@@ -1,7 +1,6 @@
 package online.awet.threads;
 
 import online.awet.system.Connector;
-import online.awet.system.Translator;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -39,17 +38,10 @@ public class UserInterfaceThread implements Runnable {
     @Override
     public void run() {
         try {
-            Translator translator = Translator.getInstance();
-
             // Loop listening for user input
             while (true) {
                 if (cliScanner.hasNextLine()) {
                     String userInput = cliScanner.nextLine();
-
-                    // If the user enters a command, translate it to the PROTOCOL and send it
-                    if (translator.isServerAction(userInput)) {
-                        userInput = translator.translate(userInput);
-                    }
 
                     writer.write(userInput);
                     writer.newLine();

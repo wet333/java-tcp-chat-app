@@ -1,6 +1,7 @@
 package online.awet.threads;
 
 import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.core.parser.Translator;
 import online.awet.system.messages.core.MessageHandlerFilterChain;
 import online.awet.system.sessions.Session;
 import online.awet.system.sessions.UserSession;
@@ -64,6 +65,7 @@ public class ClientHandlerThread implements Runnable {
         // Obtain instances of broadcast and message handling services.
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
         MessageHandlerFilterChain messageHandlerFilterChain = MessageHandlerFilterChain.getInstance();
+        Translator translator = Translator.getInstance();
 
         try {
             // Initialize streams for reading from and writing to the client.
@@ -86,9 +88,11 @@ public class ClientHandlerThread implements Runnable {
             // Continuously read and process messages from the client until they disconnect.
             String clientMessage;
             while ((clientMessage = reader.readLine()) != null) {
-                System.out.println("Msg: " + clientMessage);
+                // TODO: I want to log every raw message, not just the message but also info about who made it.
+                System.out.println("RAW Client Message: " + clientMessage);
                 // Process each client message through the message handler chain (MessageHandlerFilterChain).
-                messageHandlerFilterChain.process(session, clientMessage);
+                // TODO: Is this the best place to translate the message? idk, but is the easier one. Think about this.
+                messageHandlerFilterChain.process(session, translator.translate(clientMessage));
             }
 
             // Notify all clients of the disconnection event.

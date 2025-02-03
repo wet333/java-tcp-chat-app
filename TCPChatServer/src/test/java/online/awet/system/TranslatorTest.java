@@ -1,5 +1,7 @@
 package online.awet.system;
 
+import online.awet.system.core.parser.Translator;
+import online.awet.system.core.parser.TranslatorException;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 

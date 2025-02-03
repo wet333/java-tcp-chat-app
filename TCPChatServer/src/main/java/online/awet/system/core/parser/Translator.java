@@ -1,6 +1,8 @@
-package online.awet.system;
+package online.awet.system.core.parser;
 
 import java.util.*;
+
+// TODO: Should i make the Translator a static method that translates the clients messages in the ClientMessageParser?
 
 /**
  * The {@code Translator} class is a singleton utility for translating client messages into a standardized
@@ -61,6 +63,11 @@ public class Translator {
     public String translate(String clientMessage) {
         if (clientMessage == null || clientMessage.isBlank()) {
             throw new TranslatorException("Empty message, please try again.");
+        }
+
+        // If the message is not a command, just pass it through
+        if (!isServerAction(clientMessage)) {
+            return clientMessage;
         }
 
         List<String> messageParts = new ArrayList<>(List.of(clientMessage.split(" ")));
