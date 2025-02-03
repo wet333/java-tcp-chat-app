@@ -43,13 +43,11 @@ public class HelpCommandHandler extends BaseMessageHandler {
         Map<Class<? extends MessageHandler>, MessageHandler> hanlderList = MessageHandlerRegistry.getInstance().getMessageHandlerMap();
 
         helpMessage.append("\n\tCommands: \n");
-
         hanlderList.values().forEach(handler -> {
             if (handler instanceof HelpProvider helpProvider) {
                 helpMessage.append("\t\t").append(helpProvider.getDescription()).append("\n");
             }
         });
-
         helpMessage.append("\n");
 
         broadcastManager.serverDirectMessage(helpMessage.toString(), session);

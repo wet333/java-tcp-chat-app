@@ -3,8 +3,8 @@ package online.awet.system.messages.handlers;
 import online.awet.system.broadcast.BroadcastManager;
 import online.awet.system.core.parser.ClientMessageParser;
 import online.awet.system.messages.core.BaseMessageHandler;
-import online.awet.system.messages.core.MessageHandler;
 import online.awet.system.messages.core.RegisterMessageHandler;
+import online.awet.system.messages.exceptions.MessageHandlerException;
 import online.awet.system.messages.handlers.extensions.HelpProvider;
 import online.awet.system.sessions.Session;
 import online.awet.system.userManagement.FileBasedAccountManager;
@@ -25,8 +25,6 @@ public class UserRegisterHandler extends BaseMessageHandler implements HelpProvi
         FileBasedAccountManager accountManager = FileBasedAccountManager.getInstance();
         Map<String, String> data = ClientMessageParser.parse(message);
 
-        System.out.println(data);
-
         try {
             String username = data.get("username");
             String password = data.get("password");
@@ -41,10 +39,7 @@ public class UserRegisterHandler extends BaseMessageHandler implements HelpProvi
                     session
             );
         } catch (Exception e) {
-            broadcastManager.serverDirectMessage(
-                    "Couldn't register user " + data.get("username") + ". " + e.getMessage(),
-                    session
-            );
+            throw new MessageHandlerException(e.getMessage(), this);
         }
     }
 

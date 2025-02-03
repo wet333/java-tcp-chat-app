@@ -60,7 +60,7 @@ public class Translator {
      * }
      * </pre>
      */
-    public String translate(String clientMessage) {
+    public String translate(String clientMessage) throws TranslatorException {
         if (clientMessage == null || clientMessage.isBlank()) {
             throw new TranslatorException("Empty message, please try again.");
         }
@@ -146,7 +146,7 @@ public class Translator {
         if (input == null) {
             throw new TranslatorException("Command Error: input is null.");
         }
-        if (input.isEmpty() || input.isBlank()) {
+        if (input.isBlank()) {
             throw new TranslatorException("Command Error: input is blank or empty.");
         }
         if (input.matches(".*\\d.*")) {

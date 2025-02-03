@@ -65,7 +65,6 @@ public class ClientHandlerThread implements Runnable {
         // Obtain instances of broadcast and message handling services.
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
         MessageHandlerFilterChain messageHandlerFilterChain = MessageHandlerFilterChain.getInstance();
-        Translator translator = Translator.getInstance();
 
         try {
             // Initialize streams for reading from and writing to the client.
@@ -91,8 +90,7 @@ public class ClientHandlerThread implements Runnable {
                 // TODO: I want to log every raw message, not just the message but also info about who made it.
                 System.out.println("RAW Client Message: " + clientMessage);
                 // Process each client message through the message handler chain (MessageHandlerFilterChain).
-                // TODO: Is this the best place to translate the message? idk, but is the easier one. Think about this.
-                messageHandlerFilterChain.process(session, translator.translate(clientMessage));
+                messageHandlerFilterChain.process(session, clientMessage);
             }
 
             // Notify all clients of the disconnection event.

@@ -3,11 +3,12 @@ package online.awet.system.messages.handlers;
 import online.awet.system.broadcast.BroadcastManager;
 import online.awet.system.core.parser.ClientMessageParser;
 import online.awet.system.messages.core.BaseMessageHandler;
-import online.awet.system.messages.core.MessageHandlerFilterChain;
 import online.awet.system.messages.core.RegisterMessageHandler;
+import online.awet.system.messages.exceptions.MessageHandlerException;
 import online.awet.system.messages.handlers.extensions.HelpProvider;
 import online.awet.system.sessions.Session;
 import online.awet.system.sessions.UserSession;
+import online.awet.system.userManagement.AccountManagerException;
 import online.awet.system.userManagement.FileBasedAccountManager;
 import online.awet.system.userManagement.User;
 
@@ -21,26 +22,23 @@ public class UserLoginHandler extends BaseMessageHandler implements HelpProvider
     }
 
     @Override
-    public void handleMessage(Session session, String message) {
+    public void handleMessage(Session session, String message) throws MessageHandlerException {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
         FileBasedAccountManager accountManager = FileBasedAccountManager.getInstance();
-        // TODO: Add message parsing to the baseMessageHanlder base functionality???
         Map<String, String> data = ClientMessageParser.parse(message);
-
-        System.out.println(data);
 
         try {
             String username = data.get("username");
             String password = data.get("password");
 
             if (username == null || password == null) {
-                throw new Exception("Missing credentials username or password");
+                throw new MessageHandlerException("Missing credentials username or password", this);
             }
 
             User user = accountManager.getAccount(username, password);
 
             if (user == null) {
-                throw new Exception("Invalid username or password");
+                throw new MessageHandlerException("Invalid username or password", this);
             }
 
             ((UserSession) session).setUsername(username);
@@ -51,11 +49,8 @@ public class UserLoginHandler extends BaseMessageHandler implements HelpProvider
                     "You are logged in as: " + username,
                     session
             );
-        } catch (Exception e) {
-            broadcastManager.serverDirectMessage(
-                    "Couldn't login user " + data.get("username") + ". " + e.getMessage(),
-                    session
-            );
+        } catch (AccountManagerException e) {
+            throw new MessageHandlerException(e.getMessage(), this);
         }
     }
 

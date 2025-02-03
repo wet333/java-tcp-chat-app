@@ -1,5 +1,6 @@
 package online.awet.system.messages.core;
 
+import online.awet.system.messages.exceptions.MessageHandlerException;
 import online.awet.system.sessions.Session;
 
 /**
@@ -50,7 +51,7 @@ public abstract class BaseMessageHandler implements MessageHandler {
      * @param session The session associated with the client sending the message.
      * @param message The message to be processed.
      */
-    public abstract void handleMessage(Session session, String message);
+    public abstract void handleMessage(Session session, String message) throws MessageHandlerException;
 
     /**
      * Processes a message by first checking if it is accepted by this handler.

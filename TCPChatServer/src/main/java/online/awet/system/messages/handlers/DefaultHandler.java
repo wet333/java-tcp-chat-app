@@ -1,6 +1,7 @@
 package online.awet.system.messages.handlers;
 
 import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.core.parser.ClientMessageParser;
 import online.awet.system.messages.core.BaseMessageHandler;
 import online.awet.system.messages.core.MessageHandlerFilterChain;
 import online.awet.system.messages.core.RegisterMessageHandler;
@@ -49,6 +50,15 @@ public class DefaultHandler extends BaseMessageHandler {
     @Override
     public void handleMessage(Session session, String message) {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
+
+        // Any command that has no handlers will reach this point, to prevent leaking data accidentally
+        // Send a private error msg to the user.
+        if (ClientMessageParser.isACommand(message)) {
+            message = "Invalid command: " + message.replace(":", "") + ". There are no handlers for this command.";
+            broadcastManager.serverDirectMessage(message, session);
+            return;
+        }
+
         String identifier = ((UserSession) session).getAlias() != null ? ((UserSession) session).getAlias() : session.getSessionId();
         String messageMod =  identifier + ": " + message;
         broadcastManager.broadcast(messageMod, session);

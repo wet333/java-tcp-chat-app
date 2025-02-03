@@ -4,6 +4,7 @@ import online.awet.system.broadcast.BroadcastManager;
 import online.awet.system.core.parser.ClientMessageParser;
 import online.awet.system.core.parser.ParserException;
 import online.awet.system.messages.core.BaseMessageHandler;
+import online.awet.system.messages.exceptions.MessageHandlerException;
 import online.awet.system.sessions.Session;
 
 import java.util.Map;
@@ -19,7 +20,7 @@ public class CommandEchoHandler extends BaseMessageHandler {
     }
 
     @Override
-    public void handleMessage(Session session, String message) {
+    public void handleMessage(Session session, String message) throws MessageHandlerException {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
         StringBuilder response = new StringBuilder();
 
@@ -37,7 +38,7 @@ public class CommandEchoHandler extends BaseMessageHandler {
 
             broadcastManager.broadcast(response.toString(), session);
         } catch (ParserException e) {
-            System.out.println("Error on class --> " + this.getClass().getName() + ", " + e.getMessage());
+            throw new MessageHandlerException(e.getMessage(), this);
         }
     }
 }
