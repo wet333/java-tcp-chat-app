@@ -65,6 +65,7 @@ public class MessageHandlerFilterChain {
             message = translator.translate(message);
         } catch (TranslatorException te) {
             broadcastManager.serverDirectMessage(te.getMessage(), session);
+            return; // Prevents invalid messages to be broadcast
         }
 
         // Handle all MessageHandler's Exceptions
