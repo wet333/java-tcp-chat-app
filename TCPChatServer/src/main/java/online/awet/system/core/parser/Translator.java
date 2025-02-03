@@ -66,7 +66,7 @@ public class Translator {
         }
 
         // If the message is not a command, just pass it through
-        if (!isServerAction(clientMessage)) {
+        if (!isServerAction(clientMessage.trim())) {
             return clientMessage;
         }
 
