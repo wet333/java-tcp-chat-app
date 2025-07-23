@@ -7,7 +7,7 @@ import online.awet.system.messages.core.RegisterMessageHandler;
 import online.awet.system.messages.exceptions.MessageHandlerException;
 import online.awet.system.messages.handlers.extensions.HelpProvider;
 import online.awet.system.sessions.Session;
-import online.awet.system.userManagement.FileBasedAccountManager;
+import online.awet.system.userManagement.FileStorageAccountManagerImpl;
 
 import java.util.Map;
 
@@ -22,7 +22,7 @@ public class UserRegisterHandler extends BaseMessageHandler implements HelpProvi
     @Override
     public void handleMessage(Session session, String message) {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        FileBasedAccountManager accountManager = FileBasedAccountManager.getInstance();
+        FileStorageAccountManagerImpl accountManager = FileStorageAccountManagerImpl.getInstance();
         Map<String, String> data = ClientMessageParser.parse(message);
 
         try {

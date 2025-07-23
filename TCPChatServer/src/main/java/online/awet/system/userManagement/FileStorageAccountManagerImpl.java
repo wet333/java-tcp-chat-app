@@ -31,7 +31,7 @@ import java.util.Set;
  * @see AccountManager
  * @see AccountManagerException
  */
-public class FileBasedAccountManager implements AccountManager {
+public class FileStorageAccountManagerImpl implements AccountManager {
 
     /**
      * The file where user accounts are stored.
@@ -46,12 +46,12 @@ public class FileBasedAccountManager implements AccountManager {
     /**
      * Singleton instance of {@code AccountsManager}.
      */
-    private static FileBasedAccountManager instance;
+    private static FileStorageAccountManagerImpl instance;
 
     /**
      * Private constructor to load users into memory from the storage file and enforce singleton pattern.
      */
-    private FileBasedAccountManager() {
+    private FileStorageAccountManagerImpl() {
         try {
             this.users = this.loadAccountList();
         } catch (IOException e) {
@@ -65,9 +65,9 @@ public class FileBasedAccountManager implements AccountManager {
      *
      * @return the {@code AccountsManager} instance.
      */
-    public static FileBasedAccountManager getInstance() {
+    public static FileStorageAccountManagerImpl getInstance() {
         if (instance == null) {
-            instance = new FileBasedAccountManager();
+            instance = new FileStorageAccountManagerImpl();
         }
         return instance;
     }
