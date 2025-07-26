@@ -22,8 +22,6 @@ public class SystemUtils {
 
             while (resources.hasMoreElements()) {
                 URI uri = resources.nextElement().toURI();
-                // If the application is packaged into a .jar file, the classLoader cant read the files as when running from
-                // java IDE using target/ folder artifacts.
                 if (uri.getScheme().equals("jar")) {
                     results.addAll(getClassesFromJar(uri, path));
                 } else {
@@ -80,7 +78,7 @@ public class SystemUtils {
             try {
                 Class<? extends T> klass = (Class<? extends T>) Class.forName(className);
 
-                if (klass.isAnnotation()) continue; // Skip annotations itself
+                if (klass.isAnnotation()) continue;
 
                 for (Annotation annotation : klass.getAnnotations()) {
                     boolean hasAnnotation = annotation.annotationType().getSimpleName().equals(annotationName);

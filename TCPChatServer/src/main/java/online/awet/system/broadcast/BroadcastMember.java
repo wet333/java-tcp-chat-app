@@ -21,7 +21,6 @@ public class BroadcastMember {
         return writer;
     }
 
-    // Same sessionId same BroadcastMember
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

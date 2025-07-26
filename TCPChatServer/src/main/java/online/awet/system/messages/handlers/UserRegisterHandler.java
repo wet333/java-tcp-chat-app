@@ -6,7 +6,7 @@ import online.awet.system.messages.core.BaseMessageHandler;
 import online.awet.system.messages.core.RegisterMessageHandler;
 import online.awet.system.messages.exceptions.MessageHandlerException;
 import online.awet.system.messages.handlers.extensions.HelpProvider;
-import online.awet.system.sessions.Session;
+import online.awet.system.sessions.holder.SessionHolder;
 import online.awet.system.userManagement.FileStorageAccountManagerImpl;
 
 import java.util.Map;
@@ -20,7 +20,7 @@ public class UserRegisterHandler extends BaseMessageHandler implements HelpProvi
     }
 
     @Override
-    public void handleMessage(Session session, String message) {
+    public void handleMessage(SessionHolder sessionHolder, String message) {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
         FileStorageAccountManagerImpl accountManager = FileStorageAccountManagerImpl.getInstance();
         Map<String, String> data = ClientMessageParser.parse(message);
@@ -36,7 +36,7 @@ public class UserRegisterHandler extends BaseMessageHandler implements HelpProvi
 
             broadcastManager.serverDirectMessage(
                     "User " + data.get("username") + " has been registered.",
-                    session
+                    sessionHolder.getCurrentSession()
             );
         } catch (Exception e) {
             throw new MessageHandlerException(e.getMessage(), this);

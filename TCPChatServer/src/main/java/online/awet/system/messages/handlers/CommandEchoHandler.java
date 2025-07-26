@@ -6,10 +6,10 @@ import online.awet.system.core.parser.ParserException;
 import online.awet.system.messages.core.BaseMessageHandler;
 import online.awet.system.messages.exceptions.MessageHandlerException;
 import online.awet.system.sessions.Session;
+import online.awet.system.sessions.holder.SessionHolder;
 
 import java.util.Map;
 
-//@RegisterMessageHandler
 public class CommandEchoHandler extends BaseMessageHandler {
     @Override
     public boolean accepts(String message) {
@@ -20,9 +20,10 @@ public class CommandEchoHandler extends BaseMessageHandler {
     }
 
     @Override
-    public void handleMessage(Session session, String message) throws MessageHandlerException {
+    public void handleMessage(SessionHolder sessionHolder, String message) throws MessageHandlerException {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
         StringBuilder response = new StringBuilder();
+        Session session = sessionHolder.getCurrentSession();
 
         try {
             Map<String, String> clientReq = ClientMessageParser.parse(message);

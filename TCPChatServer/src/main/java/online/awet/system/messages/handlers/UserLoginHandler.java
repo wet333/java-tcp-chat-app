@@ -6,8 +6,8 @@ import online.awet.system.messages.core.BaseMessageHandler;
 import online.awet.system.messages.core.RegisterMessageHandler;
 import online.awet.system.messages.exceptions.MessageHandlerException;
 import online.awet.system.messages.handlers.extensions.HelpProvider;
-import online.awet.system.sessions.Session;
-import online.awet.system.sessions.UserSession;
+import online.awet.system.sessions.AuthenticatedSession;
+import online.awet.system.sessions.holder.SessionHolder;
 import online.awet.system.userManagement.AccountManagerException;
 import online.awet.system.userManagement.FileStorageAccountManagerImpl;
 import online.awet.system.userManagement.User;
@@ -22,7 +22,7 @@ public class UserLoginHandler extends BaseMessageHandler implements HelpProvider
     }
 
     @Override
-    public void handleMessage(Session session, String message) throws MessageHandlerException {
+    public void handleMessage(SessionHolder sessionHolder, String message) throws MessageHandlerException {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
         FileStorageAccountManagerImpl accountManager = FileStorageAccountManagerImpl.getInstance();
         Map<String, String> data = ClientMessageParser.parse(message);
@@ -41,13 +41,13 @@ public class UserLoginHandler extends BaseMessageHandler implements HelpProvider
                 throw new MessageHandlerException("Invalid username or password", this);
             }
 
-            ((UserSession) session).setUsername(username);
-            ((UserSession) session).setPassword(password);
-            ((UserSession) session).setAlias(username);
+            sessionHolder.authenticate(Map.of(
+                    AuthenticatedSession.USERNAME, user.getUsername(),
+                    AuthenticatedSession.ALIAS, user.getUsername()
+            ));
 
             broadcastManager.serverDirectMessage(
-                    "You are logged in as: " + username,
-                    session
+                    "You are logged in as: " + username, sessionHolder.getCurrentSession()
             );
         } catch (AccountManagerException e) {
             throw new MessageHandlerException(e.getMessage(), this);

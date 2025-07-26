@@ -5,7 +5,6 @@ import java.util.Objects;
 
 public class User {
 
-    // Private information
     private String username;
     private String password;
     private InetAddress ip;
