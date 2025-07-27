@@ -21,7 +21,7 @@ public final class AnonymousSession implements Session {
     }
 
     @Override
-    public Boolean isAuthenticated() {
+    public boolean isAuthenticated() {
         return false;
     }
 

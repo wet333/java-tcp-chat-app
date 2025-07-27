@@ -45,7 +45,7 @@ public final class AuthenticatedSession implements Session {
     }
 
     @Override
-    public Boolean isAuthenticated() {
+    public boolean isAuthenticated() {
         return true;
     }
 

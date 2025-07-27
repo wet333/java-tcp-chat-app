@@ -6,5 +6,5 @@ public interface Session {
 
     String getDisplayName();
 
-    Boolean isAuthenticated();
+    boolean isAuthenticated();
 }
