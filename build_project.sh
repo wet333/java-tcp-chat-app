@@ -4,11 +4,9 @@ root_dir=$(pwd)
 
 client_dir=$root_dir/TCPChatClient
 server_dir=$root_dir/TCPChatServer
-protocol_dir=$root_dir/TCPChatProtocol
 dist_dev_dir=$root_dir/dist
 
 # Build all modules
-cd "$protocol_dir" && mvn clean -U install
 cd "$client_dir" && mvn clean -U install
 cd "$server_dir" && mvn clean -U install
 
