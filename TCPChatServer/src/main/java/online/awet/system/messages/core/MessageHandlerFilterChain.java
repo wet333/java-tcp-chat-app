@@ -5,7 +5,6 @@ import online.awet.system.broadcast.BroadcastManager;
 import online.awet.system.core.parser.Translator;
 import online.awet.system.core.parser.TranslatorException;
 import online.awet.system.messages.exceptions.MessageHandlerException;
-import online.awet.system.sessions.Session;
 import online.awet.system.sessions.holder.SessionHolder;
 
 public class MessageHandlerFilterChain {

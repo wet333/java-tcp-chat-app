@@ -6,7 +6,6 @@ import online.awet.system.messages.core.MessageHandler;
 import online.awet.system.messages.core.MessageHandlerRegistry;
 import online.awet.system.messages.core.RegisterMessageHandler;
 import online.awet.system.messages.handlers.extensions.HelpProvider;
-import online.awet.system.sessions.Session;
 import online.awet.system.sessions.holder.SessionHolder;
 
 import java.util.Map;

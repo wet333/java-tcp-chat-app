@@ -3,7 +3,6 @@ package online.awet.system.messages.handlers;
 import online.awet.system.broadcast.BroadcastManager;
 import online.awet.system.core.parser.ClientMessageParser;
 import online.awet.system.messages.core.BaseMessageHandler;
-import online.awet.system.messages.core.MessageHandlerFilterChain;
 import online.awet.system.messages.core.RegisterMessageHandler;
 import online.awet.system.sessions.Session;
 import online.awet.system.sessions.holder.SessionHolder;

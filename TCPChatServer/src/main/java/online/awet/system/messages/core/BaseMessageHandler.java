@@ -1,7 +1,6 @@
 package online.awet.system.messages.core;
 
 import online.awet.system.messages.exceptions.MessageHandlerException;
-import online.awet.system.sessions.Session;
 import online.awet.system.sessions.holder.SessionHolder;
 
 public abstract class BaseMessageHandler implements MessageHandler {
