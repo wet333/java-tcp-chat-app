@@ -63,16 +63,15 @@ public class BroadcastManager {
     }
 
     public void serverBroadcast(String message) {
+        String formattedMessage = "Server: " + message;
         synchronized (broadcastMembers) {
             for (BroadcastMember member : broadcastMembers) {
                 try {
-                    message = "Server: " + message;
-                    member.getWriter().write(message);
+                    member.getWriter().write(formattedMessage);
                     member.getWriter().newLine();
                     member.getWriter().flush();
-
                 } catch (IOException e) {
-                    System.out.println("Couldn't send message <<" + message + ">> to client. Cause: " + e.getMessage());
+                    System.out.println("Couldn't send message <<" + formattedMessage + ">> to client. Cause: " + e.getMessage());
                 }
             }
         }

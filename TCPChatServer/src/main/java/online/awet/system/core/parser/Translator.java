@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Translator {
 
-    public static Translator instance;
+    private static final Translator instance = new Translator();
 
     private final String COMMAND_HEADER_FORMAT = "%s:";
 
@@ -14,9 +14,6 @@ public class Translator {
     private Translator() {}
 
     public static Translator getInstance() {
-        if (instance == null) {
-            instance = new Translator();
-        }
         return instance;
     }
 

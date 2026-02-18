@@ -23,20 +23,15 @@ public class Connector {
         return instance;
     }
 
-    public Socket connect() {
+    public Socket connect() throws IOException {
         return connect("localhost");
     }
 
-    public Socket connect(String serverIp) {
+    public Socket connect(String serverIp) throws IOException {
         configuration.setServerIp(serverIp);
-        try {
-            Socket server = new Socket(configuration.getServerIp(), DefaultConfigurations.DEFAULT_PORT);
-            setServerSocket(server);
-            return server;
-        } catch (IOException e) {
-            System.out.println("Couldn't connect to server, with IP: " + configuration.getServerIp());
-        }
-        return null;
+        Socket server = new Socket(configuration.getServerIp(), DefaultConfigurations.DEFAULT_PORT);
+        setServerSocket(server);
+        return server;
     }
 
     public Socket getServerSocket() throws ConnectorException {

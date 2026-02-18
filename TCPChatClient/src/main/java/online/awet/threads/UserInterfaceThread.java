@@ -10,7 +10,7 @@ import java.util.Scanner;
 
 public class UserInterfaceThread implements Runnable {
 
-    public static UserInterfaceThread instance;
+    private static UserInterfaceThread instance;
 
     private Scanner cliScanner;
     private Socket serverSocket;
@@ -37,31 +37,26 @@ public class UserInterfaceThread implements Runnable {
 
     @Override
     public void run() {
-        try {
-            // Loop listening for user input
-            while (true) {
+        while (true) {
+            try {
                 if (cliScanner.hasNextLine()) {
                     String userInput = cliScanner.nextLine();
 
                     if (userInput == null || userInput.isBlank()) {
-                        throw new Exception("Input is null or empty.");
+                        continue;
                     }
 
                     writer.write(userInput);
                     writer.newLine();
                     writer.flush();
 
-                    // Move the cursor up one line
                     System.out.print("\033[F");
-                    // Clear the entire line
                     System.out.print("\033[2K");
                 }
+            } catch (IOException e) {
+                System.out.println("Error sending message to the server, Cause: " + e.getMessage());
+                break;
             }
-        } catch (Exception e) {
-            System.out.println("Error sending message to the server, Cause: " + e.getMessage());
-
-            // Restart Loop
-            this.run();
         }
     }
 }

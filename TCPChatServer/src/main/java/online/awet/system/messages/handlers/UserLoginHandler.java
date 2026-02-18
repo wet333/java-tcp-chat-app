@@ -8,8 +8,8 @@ import online.awet.system.messages.exceptions.MessageHandlerException;
 import online.awet.system.messages.handlers.extensions.HelpProvider;
 import online.awet.system.sessions.AuthenticatedSession;
 import online.awet.system.sessions.holder.SessionHolder;
+import online.awet.system.userManagement.AccountManager;
 import online.awet.system.userManagement.AccountManagerException;
-import online.awet.system.userManagement.FileStorageAccountManagerImpl;
 import online.awet.system.userManagement.User;
 
 import java.util.Map;
@@ -24,7 +24,7 @@ public class UserLoginHandler extends BaseMessageHandler implements HelpProvider
     @Override
     public void handleMessage(SessionHolder sessionHolder, String message) throws MessageHandlerException {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        FileStorageAccountManagerImpl accountManager = FileStorageAccountManagerImpl.getInstance();
+        AccountManager accountManager = AccountManager.getInstance();
         Map<String, String> data = ClientMessageParser.parse(message);
 
         try {

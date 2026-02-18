@@ -9,7 +9,7 @@ import online.awet.system.sessions.holder.SessionHolder;
 
 public class MessageHandlerFilterChain {
 
-    private static MessageHandlerFilterChain instance;
+    private static final MessageHandlerFilterChain instance = new MessageHandlerFilterChain();
     private final MessageHandlerRegistry registry;
     private final Translator translator;
     private final BroadcastManager broadcastManager;
@@ -22,9 +22,6 @@ public class MessageHandlerFilterChain {
     }
 
     public static MessageHandlerFilterChain getInstance() {
-        if (instance == null) {
-            instance = new MessageHandlerFilterChain();
-        }
         return instance;
     }
 

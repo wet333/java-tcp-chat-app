@@ -11,6 +11,10 @@ public final class AnonymousSession implements Session {
         this.sessionId = UUID.randomUUID().toString();
     }
 
+    public AnonymousSession(String sessionId) {
+        this.sessionId = sessionId;
+    }
+
     @Override
     public String getSessionId() {
         return sessionId;

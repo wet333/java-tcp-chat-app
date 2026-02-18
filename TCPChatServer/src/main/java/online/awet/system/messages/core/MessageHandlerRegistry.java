@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 public class MessageHandlerRegistry {
 
-    private static MessageHandlerRegistry instance;
+    private static final MessageHandlerRegistry instance = new MessageHandlerRegistry();
 
     private final Map<Class<? extends MessageHandler>, MessageHandler> messageHandlerMap = new LinkedHashMap<>();
 
@@ -18,9 +18,6 @@ public class MessageHandlerRegistry {
     }
 
     public static MessageHandlerRegistry getInstance() {
-        if (instance == null) {
-            instance = new MessageHandlerRegistry();
-        }
         return instance;
     }
 

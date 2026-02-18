@@ -21,7 +21,7 @@ public class InMemorySessionHolder implements SessionHolder {
 
     @Override
     public void deleteSession() {
-        this.currentSession = new AnonymousSession();
+        this.currentSession = new AnonymousSession(this.currentSession.getSessionId());
     }
 
     @Override

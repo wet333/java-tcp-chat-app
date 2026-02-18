@@ -7,8 +7,8 @@ import online.awet.system.messages.core.RegisterMessageHandler;
 import online.awet.system.messages.exceptions.MessageHandlerException;
 import online.awet.system.messages.handlers.extensions.HelpProvider;
 import online.awet.system.sessions.holder.SessionHolder;
+import online.awet.system.userManagement.AccountManager;
 import online.awet.system.userManagement.AccountManagerException;
-import online.awet.system.userManagement.FileStorageAccountManagerImpl;
 
 import java.util.Map;
 
@@ -23,7 +23,7 @@ public class UserUnregisterHandler extends BaseMessageHandler implements HelpPro
     @Override
     public void handleMessage(SessionHolder sessionHolder, String message) throws MessageHandlerException {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        FileStorageAccountManagerImpl accountManager = FileStorageAccountManagerImpl.getInstance();
+        AccountManager accountManager = AccountManager.getInstance();
         Map<String, String> data = ClientMessageParser.parse(message);
 
         try {

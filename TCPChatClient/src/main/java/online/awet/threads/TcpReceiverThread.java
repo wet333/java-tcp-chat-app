@@ -12,7 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class TcpReceiverThread implements Runnable {
 
-    public static TcpReceiverThread instance;
+    private static TcpReceiverThread instance;
 
     private BufferedReader serverMessageStream;
     private final BlockingQueue<String> messageQueue;
