@@ -70,13 +70,13 @@ public class SystemUtils {
         return classes;
     }
 
-    public static <T> Map<Class<? extends T>, T> instantiateClassesAnnotatedBy(String annotationName, String packageName) {
+    public static <T> Map<Class<? extends T>, T> instantiateClassesAnnotatedBy(Class<T> type, String annotationName, String packageName) {
         Map<Class<? extends T>, T> results = new HashMap<>();
         List<String> classNames = getClassesFromPackage(packageName);
 
         for (String className : classNames) {
             try {
-                Class<? extends T> klass = (Class<? extends T>) Class.forName(className);
+                Class<? extends T> klass = Class.forName(className).asSubclass(type);
 
                 if (klass.isAnnotation()) continue;
 
@@ -89,6 +89,7 @@ public class SystemUtils {
                 }
             } catch (ClassNotFoundException e) {
                 System.out.println("Class " + className + " not found.");
+            } catch (ClassCastException e) {
             } catch (InvocationTargetException | InstantiationException | IllegalAccessException | NoSuchMethodException e) {
                 System.out.println(
                         "The class " + className + " could not be initialized, please make sure to declare a no args constructor."

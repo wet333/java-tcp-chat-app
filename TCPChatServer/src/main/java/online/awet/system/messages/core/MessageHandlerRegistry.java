@@ -25,6 +25,7 @@ public class MessageHandlerRegistry {
         System.out.println("Loading MessageHandlers...");
 
         Map<Class<? extends MessageHandler>, MessageHandler> tempMap = new HashMap<>(SystemUtils.instantiateClassesAnnotatedBy(
+                MessageHandler.class,
                 "RegisterMessageHandler",
                 "online.awet.system.messages.handlers"
         ));

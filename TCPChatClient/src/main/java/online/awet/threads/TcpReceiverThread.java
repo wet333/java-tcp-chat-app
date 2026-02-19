@@ -14,20 +14,10 @@ public class TcpReceiverThread implements Runnable {
 
     private static TcpReceiverThread instance;
 
-    private BufferedReader serverMessageStream;
     private final BlockingQueue<String> messageQueue;
 
     private TcpReceiverThread() {
         messageQueue = new LinkedBlockingQueue<>();
-        try {
-            Socket serverSocket = Connector.getInstance().getServerSocket();
-            serverMessageStream = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
-        } catch (IOException e) {
-            System.out.println("The TcpReceiverThread couldn't get the socket inputStream.");
-            System.out.println(e.getMessage());
-        } catch (ConnectorException e) {
-            System.out.println(e.getMessage());
-        }
     }
 
     public static TcpReceiverThread getInstance() {
@@ -39,17 +29,22 @@ public class TcpReceiverThread implements Runnable {
 
     @Override
     public void run() {
-        String serverMessage;
         try {
-            while ((serverMessage = serverMessageStream.readLine()) != null) {
-                if (!serverMessage.isBlank()) {
-                    messageQueue.put(serverMessage);
-                    // TODO: Remove this print when CLI classes are implemented
-                    System.out.println(serverMessage);
+            Socket serverSocket = Connector.getInstance().getServerSocket();
+            try (BufferedReader serverMessageStream = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()))) {
+                String serverMessage;
+                while ((serverMessage = serverMessageStream.readLine()) != null) {
+                    if (!serverMessage.isBlank()) {
+                        messageQueue.put(serverMessage);
+                        // TODO: Remove this print when CLI classes are implemented
+                        System.out.println(serverMessage);
+                    }
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error while running or starting TCPReceiverThread.");
+            System.out.println("Error while running or starting TCPReceiverThread: " + e.getMessage());
+        } catch (ConnectorException e) {
+            System.out.println(e.getMessage());
         } catch (InterruptedException e) {
             System.out.println("TcpReceiverThread was interrupted.");
         }
