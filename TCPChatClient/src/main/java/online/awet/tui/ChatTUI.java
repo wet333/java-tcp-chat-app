@@ -26,13 +26,11 @@ public class ChatTUI {
     private final BufferedWriter serverWriter;
     private final BlockingQueue<String> messageQueue;
     private final AtomicBoolean running;
-
-    private int statusBarRow;
-    private int chatStartRow;
-    private int chatEndRow;
-    private int inputSeparatorRow;
-    private int inputRow;
-    private int frameBottomRow;
+    
+    private final TUILayout layout = new TUILayout()
+        .fixed("statusBar", 1)
+        .fill("chatPanel")
+        .fixed("input", 1);
 
     public ChatTUI(BufferedWriter serverWriter, BlockingQueue<String> messageQueue) {
         this.terminal = new Terminal();
@@ -80,39 +78,28 @@ public class ChatTUI {
     }
 
     private void calculateLayout() {
-        int rows = terminal.getRows();
-
-        statusBarRow = 1;
-        chatStartRow = 3;
-        inputSeparatorRow = rows - 2;
-        inputRow = rows - 1;
-        frameBottomRow = rows;
-        chatEndRow = inputSeparatorRow;
+        layout.compute(terminal.getRows(), terminal.getCols());
     }
 
     private void renderAll() {
-        int cols = terminal.getCols();
         terminal.hideCursor();
-        frameRenderer.render(terminal.getRows(), cols, statusBarRow, chatStartRow, inputSeparatorRow, inputRow);
-        statusBarRenderer.render(statusBarState, statusBarRow + 1, cols);
+        frameRenderer.render(layout);
+        statusBarRenderer.render(statusBarState, layout.region("statusBar"));
 
         renderChatPanel();
         renderInputField();
     }
 
     private void renderChatPanel() {
-        int cols = terminal.getCols();
-        chatPanelRenderer.render(chatPanelState, chatStartRow + 1, chatEndRow, cols);
+        chatPanelRenderer.render(chatPanelState, layout.region("chatPanel"));
     }
 
     private void renderInputField() {
-        int cols = terminal.getCols();
-        inputFieldRenderer.render(inputFieldState, inputRow, cols);
+        inputFieldRenderer.render(inputFieldState, layout.region("input"));
     }
 
     private void renderStatusBar() {
-        int cols = terminal.getCols();
-        statusBarRenderer.render(statusBarState, statusBarRow + 1, cols);
+        statusBarRenderer.render(statusBarState, layout.region("statusBar"));
         renderInputField();
     }
 

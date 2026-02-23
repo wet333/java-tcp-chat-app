@@ -1,5 +1,6 @@
 package online.awet.tui.renderers;
 
+import online.awet.tui.TUILayout;
 import online.awet.tui.Terminal;
 import online.awet.tui.states.ChatPanelState;
 
@@ -14,20 +15,24 @@ public class ChatPanelRenderer {
         this.terminal = terminal;
     }
 
-    public void render(ChatPanelState state, int startRow, int endRow, int cols) {
-        int availableLines = endRow - startRow;
-        int innerWidth = cols - 4;
+    public void render(ChatPanelState state, TUILayout.Region region) {
+        // Determine how many lines and how wide the content area is
+        int availableLines = region.height;
+        int innerWidth = region.contentWidth;
 
         if (innerWidth < 1) return;
 
+        // Wrap all messages to fit within the content width
         List<String> wrappedLines = wrapMessages(state.getMessages(), innerWidth);
 
+        // Keep only the last N lines that fit in the visible area (scroll to bottom)
         int start = Math.max(0, wrappedLines.size() - availableLines);
         List<String> visibleLines = wrappedLines.subList(start, wrappedLines.size());
 
+        // Draw each row: print the message line or an empty line, padded to fill the width
         for (int i = 0; i < availableLines; i++) {
-            int row = startRow + i;
-            terminal.moveCursor(row, 2);
+            int row = region.firstRow + i;
+            terminal.moveCursor(row, region.contentCol);
 
             String line;
             if (i < visibleLines.size()) {
@@ -38,9 +43,10 @@ public class ChatPanelRenderer {
 
             int pad = innerWidth - line.length();
             if (pad < 0) pad = 0;
-            terminal.print(" " + line + " ".repeat(pad) + " ");
+            terminal.print(line + " ".repeat(pad));
         }
 
+        // Flush all buffered content to the terminal
         terminal.flush();
     }
 
