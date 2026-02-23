@@ -26,7 +26,10 @@ public class ChatTUI {
     private final BufferedWriter serverWriter;
     private final BlockingQueue<String> messageQueue;
     private final AtomicBoolean running;
-    
+
+    // TUI Configurations
+    private static final int SCROLL_LINES = 1; // Number of lines to scroll when using the mouse wheel
+
     private final TUILayout layout = new TUILayout()
         .fixed("statusBar", 1)
         .fill("chatPanel")
@@ -56,6 +59,7 @@ public class ChatTUI {
 
         terminal.setOnResize(() -> {
             synchronized (terminal) {
+                chatPanelState.resetScroll();
                 calculateLayout();
                 terminal.clearScreen();
                 renderAll();
@@ -200,8 +204,50 @@ public class ChatTUI {
                     renderInputField();
                 }
                 break;
+            case '<':
+                handleSgrMouseSequence();
+                break;
             default:
                 break;
+        }
+    }
+
+    private void handleSgrMouseSequence() throws IOException {
+        StringBuilder seq = new StringBuilder();
+        int ch;
+        while ((ch = terminal.readChar()) != 'M' && ch != 'm' && ch != -1) {
+            seq.append((char) ch);
+        }
+        String[] parts = seq.toString().split(";");
+        if (parts.length == 3) {
+            try {
+                int button = Integer.parseInt(parts[0]);
+                int col = Integer.parseInt(parts[1]);
+                int row = Integer.parseInt(parts[2]);
+                handleMouseEvent(button, col, row);
+            } catch (NumberFormatException ignored) {
+            }
+        }
+    }
+
+    private void handleMouseEvent(int button, int col, int row) {
+        TUILayout.Region chatRegion = layout.region("chatPanel");
+
+        // Check if the mouse event is within the chat panel region
+        if (row < chatRegion.firstRow || row > chatRegion.lastRow) return;
+        if (col < chatRegion.contentCol || col >= chatRegion.contentCol + chatRegion.contentWidth) return;
+
+        // Scroll the chat panel up or down based on the mouse wheel event
+        synchronized (terminal) {
+            if (button == 64) {
+                chatPanelState.scrollUp(SCROLL_LINES);
+                renderChatPanel();
+                renderInputField();
+            } else if (button == 65) {
+                chatPanelState.scrollDown(SCROLL_LINES);
+                renderChatPanel();
+                renderInputField();
+            }
         }
     }
 }

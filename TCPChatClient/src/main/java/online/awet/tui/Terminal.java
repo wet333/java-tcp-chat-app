@@ -31,13 +31,12 @@ public class Terminal {
             try { updateSize(); } catch (IOException ignored) {}
             if (onResize != null) onResize.run();
         });
-    }
 
-    public void setOnResize(Runnable onResize) {
-        this.onResize = onResize;
+        enableMouseTracking();
     }
 
     public void disableRawMode() {
+        disableMouseTracking();
         try {
             if (originalSttySettings != null) {
                 stty(originalSttySettings);
@@ -50,6 +49,22 @@ public class Terminal {
         } catch (IOException ignored) {}
         showCursor();
         out.flush();
+    }
+
+    public void enableMouseTracking() {
+        out.print(ESC + "?1000h");
+        out.print(ESC + "?1006h");
+        out.flush();
+    }
+
+    public void disableMouseTracking() {
+        out.print(ESC + "?1000l");
+        out.print(ESC + "?1006l");
+        out.flush();
+    }
+
+    public void setOnResize(Runnable onResize) {
+        this.onResize = onResize;
     }
 
     public void updateSize() throws IOException {

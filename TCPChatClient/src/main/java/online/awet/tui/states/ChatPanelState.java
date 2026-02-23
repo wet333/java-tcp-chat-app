@@ -9,6 +9,7 @@ public class ChatPanelState {
 
     private final LinkedList<String> messages;
     private final int maxMessages;
+    private int scrollOffset = 0;
 
     public ChatPanelState(int maxMessages) {
         this.messages = new LinkedList<>();
@@ -32,5 +33,25 @@ public class ChatPanelState {
 
     public synchronized int getMessageCount() {
         return messages.size();
+    }
+
+    public synchronized void scrollUp(int lines) {
+        scrollOffset += lines;
+    }
+
+    public synchronized void scrollDown(int lines) {
+        scrollOffset = Math.max(0, scrollOffset - lines);
+    }
+
+    public synchronized void resetScroll() {
+        scrollOffset = 0;
+    }
+
+    public synchronized int getScrollOffset() {
+        return scrollOffset;
+    }
+
+    public synchronized void clampScrollOffset(int maxAllowed) {
+        scrollOffset = Math.min(scrollOffset, maxAllowed);
     }
 }

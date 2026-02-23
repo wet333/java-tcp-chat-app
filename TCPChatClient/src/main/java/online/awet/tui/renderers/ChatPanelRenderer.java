@@ -25,9 +25,13 @@ public class ChatPanelRenderer {
         // Wrap all messages to fit within the content width
         List<String> wrappedLines = wrapMessages(state.getMessages(), innerWidth);
 
-        // Keep only the last N lines that fit in the visible area (scroll to bottom)
-        int start = Math.max(0, wrappedLines.size() - availableLines);
-        List<String> visibleLines = wrappedLines.subList(start, wrappedLines.size());
+        // Calculate the maximum scroll offset based on the available lines and the number of wrapped lines
+        int maxOffset = Math.max(0, wrappedLines.size() - availableLines);
+        state.clampScrollOffset(maxOffset);
+        int effectiveOffset = state.getScrollOffset();
+        int start = Math.max(0, maxOffset - effectiveOffset);
+        int end = Math.min(start + availableLines, wrappedLines.size());
+        List<String> visibleLines = wrappedLines.subList(start, end);
 
         // Draw each row: print the message line or an empty line, padded to fill the width
         for (int i = 0; i < availableLines; i++) {
