@@ -2,28 +2,53 @@ package online.awet;
 
 import online.awet.system.Connector;
 import online.awet.threads.TcpReceiverThread;
-import online.awet.threads.UserInterfaceThread;
+import online.awet.tui.ChatTUI;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.net.Socket;
 
 public class ChatClient {
+
+    private final Connector connector;
+    private ChatTUI tui;
+    private Thread receiverThread;
+
+    public ChatClient() {
+        this.connector = Connector.getInstance();
+    }
+
+    public void start() throws IOException {
+        Socket socket = connector.connect();
+        BufferedWriter serverWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+
+        TcpReceiverThread receiver = TcpReceiverThread.getInstance();
+        receiverThread = new Thread(receiver, "tcp-receiver");
+        receiverThread.setDaemon(true);
+        receiverThread.start();
+
+        tui = new ChatTUI(serverWriter, receiver.getMessageQueue());
+        tui.start();
+    }
+
+    public void shutdown() {
+        if (tui != null) {
+            tui.shutdown();
+        }
+        if (receiverThread != null) {
+            receiverThread.interrupt();
+        }
+    }
+
     public static void main(String[] args) {
+        ChatClient client = new ChatClient();
         try {
-            Connector.getInstance().connect();
-
-            Thread tcpRecieverThread = new Thread(TcpReceiverThread.getInstance());
-            Thread userInterfaceThread = new Thread(UserInterfaceThread.getInstance());
-
-            tcpRecieverThread.start();
-            userInterfaceThread.start();
-
-            tcpRecieverThread.join();
-            userInterfaceThread.join();
-
+            client.start();
         } catch (IOException e) {
             System.out.println("Could not connect to server: " + e.getMessage());
-        } catch (InterruptedException e) {
-            System.out.println("Connection interrupted, thread malfunctioned");
+        } finally {
+            client.shutdown();
         }
     }
 }

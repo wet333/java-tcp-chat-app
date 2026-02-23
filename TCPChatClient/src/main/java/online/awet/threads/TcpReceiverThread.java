@@ -36,8 +36,6 @@ public class TcpReceiverThread implements Runnable {
                 while ((serverMessage = serverMessageStream.readLine()) != null) {
                     if (!serverMessage.isBlank()) {
                         messageQueue.put(serverMessage);
-                        // TODO: Remove this print when CLI classes are implemented
-                        System.out.println(serverMessage);
                     }
                 }
             }
@@ -48,6 +46,10 @@ public class TcpReceiverThread implements Runnable {
         } catch (InterruptedException e) {
             System.out.println("TcpReceiverThread was interrupted.");
         }
+    }
+
+    public BlockingQueue<String> getMessageQueue() {
+        return messageQueue;
     }
 
     public boolean hasMessages() {
