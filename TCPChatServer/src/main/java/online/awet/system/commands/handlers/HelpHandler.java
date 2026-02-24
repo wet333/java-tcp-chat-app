@@ -4,6 +4,7 @@ import online.awet.system.broadcast.BroadcastManager;
 import online.awet.system.commands.*;
 import online.awet.system.commands.handlers.extensions.HelpProvider;
 import online.awet.system.core.SystemUtils;
+import online.awet.system.sessions.Session;
 import online.awet.system.sessions.holder.SessionHolder;
 
 import java.util.Map;
@@ -20,7 +21,7 @@ public class HelpHandler implements CommandHandler {
     @Override
     public void handle(SessionHolder sessionHolder, Command command) {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        StringBuilder helpMessage = new StringBuilder();
+        Session session = sessionHolder.getCurrentSession();
 
         Map<Class<? extends CommandHandler>, CommandHandler> handlers =
             SystemUtils.instantiateClassesAnnotatedBy(
@@ -29,14 +30,11 @@ public class HelpHandler implements CommandHandler {
                 "online.awet.system.commands.handlers"
             );
 
-        helpMessage.append("\n\tCommands: \n");
+        broadcastManager.serverDirectMessage("Commands:", session);
         for (CommandHandler handler : handlers.values()) {
             if (handler instanceof HelpProvider helpProvider) {
-                helpMessage.append("\t\t").append(helpProvider.getDescription()).append("\n");
+                broadcastManager.serverDirectMessage("  " + helpProvider.getDescription(), session);
             }
         }
-        helpMessage.append("\n");
-
-        broadcastManager.serverDirectMessage(helpMessage.toString(), sessionHolder.getCurrentSession());
     }
 }
