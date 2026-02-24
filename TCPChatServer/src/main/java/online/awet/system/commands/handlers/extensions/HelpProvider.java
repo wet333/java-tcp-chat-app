@@ -1,9 +1,8 @@
-package online.awet.system.messages.handlers.extensions;
+package online.awet.system.commands.handlers.extensions;
 
 public interface HelpProvider {
 
     String getHelp();
-
 
     String getDescription();
 }
