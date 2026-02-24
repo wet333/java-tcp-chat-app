@@ -18,7 +18,7 @@ public class ChatServer {
     public static void main(String[] args) {
         ExecutorService threadPool = Executors.newFixedThreadPool(Configurations.THREAD_POOL_COUNT);
 
-        int portNumber = Configurations.PORT;
+        int portNumber = args.length >= 1 ? Integer.parseInt(args[0]) : Configurations.PORT;
 
         try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
             System.out.println("Chat server started on port: " + portNumber);

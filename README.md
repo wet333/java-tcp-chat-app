@@ -11,9 +11,3 @@ I’m genuinely excited to see where this chat app can go, and I'm curious to di
 This is about exploring possibilities and seeing what we can create together. No matter your experience level, I’d love to have you onboard.
 
 <hr>
-
-### TODO
-
-- Addition of Logout and Unregister handlers.
-- On connection, retrieve last chat messages from server.
-- Command guide (for client users).

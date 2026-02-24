@@ -1,7 +1,6 @@
 package online.awet.system;
 
 import online.awet.configurations.Configuration;
-import online.awet.configurations.DefaultConfigurations;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -24,12 +23,7 @@ public class Connector {
     }
 
     public Socket connect() throws IOException {
-        return connect("localhost");
-    }
-
-    public Socket connect(String serverIp) throws IOException {
-        configuration.setServerIp(serverIp);
-        Socket server = new Socket(configuration.getServerIp(), DefaultConfigurations.DEFAULT_PORT);
+        Socket server = new Socket(configuration.getServerIp(), configuration.getPort());
         setServerSocket(server);
         return server;
     }

@@ -1,8 +1,5 @@
 package online.awet.configurations;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
 public class Configuration {
 
     private static Configuration instance;
@@ -31,12 +28,7 @@ public class Configuration {
 
     public String getServerIp() {
         if (serverIp == null) {
-            try {
-                InetAddress vpsServerIp = InetAddress.getByName(DefaultConfigurations.SERVER_HOST);
-                return vpsServerIp.getHostAddress();
-            } catch (UnknownHostException e) {
-                System.out.println("Server not found, couldn't reach to " + DefaultConfigurations.SERVER_HOST);
-            }
+            return DefaultConfigurations.SERVER_HOST;
         }
         return serverIp;
     }

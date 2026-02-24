@@ -1,5 +1,6 @@
 package online.awet;
 
+import online.awet.configurations.Configuration;
 import online.awet.system.Connector;
 import online.awet.threads.TcpReceiverThread;
 import online.awet.tui.ChatTUI;
@@ -42,6 +43,15 @@ public class ChatClient {
     }
 
     public static void main(String[] args) {
+        Configuration config = Configuration.getInstance();
+
+        if (args.length >= 1) {
+            config.setServerIp(args[0]);
+        }
+        if (args.length >= 2) {
+            config.setPort(Integer.parseInt(args[1]));
+        }
+
         ChatClient client = new ChatClient();
         try {
             client.start();
