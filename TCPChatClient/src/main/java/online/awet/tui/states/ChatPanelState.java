@@ -10,6 +10,8 @@ public class ChatPanelState {
     private final LinkedList<String> messages;
     private final int maxMessages;
     private int scrollOffset = 0;
+    private int lastVisibleLine = 0;
+    private int totalWrappedLines = 0;
 
     public ChatPanelState(int maxMessages) {
         this.messages = new LinkedList<>();
@@ -53,5 +55,18 @@ public class ChatPanelState {
 
     public synchronized void clampScrollOffset(int maxAllowed) {
         scrollOffset = Math.min(scrollOffset, maxAllowed);
+    }
+
+    public synchronized void setScrollDisplayInfo(int lastVisibleLine, int totalWrappedLines) {
+        this.lastVisibleLine = lastVisibleLine;
+        this.totalWrappedLines = totalWrappedLines;
+    }
+
+    public synchronized int getLastVisibleLine() {
+        return lastVisibleLine;
+    }
+
+    public synchronized int getTotalWrappedLines() {
+        return totalWrappedLines;
     }
 }

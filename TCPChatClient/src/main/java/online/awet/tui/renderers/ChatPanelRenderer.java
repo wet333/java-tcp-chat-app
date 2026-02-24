@@ -32,6 +32,7 @@ public class ChatPanelRenderer {
         int start = Math.max(0, maxOffset - effectiveOffset);
         int end = Math.min(start + availableLines, wrappedLines.size());
         List<String> visibleLines = wrappedLines.subList(start, end);
+        state.setScrollDisplayInfo(end, wrappedLines.size());
 
         // Draw each row: print the message line or an empty line, padded to fill the width
         for (int i = 0; i < availableLines; i++) {

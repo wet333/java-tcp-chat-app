@@ -52,13 +52,13 @@ public class Terminal {
     }
 
     public void enableMouseTracking() {
-        out.print(ESC + "?1000h");
+        out.print(ESC + "?1003h");
         out.print(ESC + "?1006h");
         out.flush();
     }
 
     public void disableMouseTracking() {
-        out.print(ESC + "?1000l");
+        out.print(ESC + "?1003l");
         out.print(ESC + "?1006l");
         out.flush();
     }
@@ -130,6 +130,10 @@ public class Terminal {
 
     public void setBold() {
         out.print(ESC + "1m");
+    }
+
+    public void setReverseVideo() {
+        out.print(ESC + "7m");
     }
 
     public void print(String text) {

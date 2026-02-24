@@ -88,10 +88,9 @@ public class ChatTUI {
     private void renderAll() {
         terminal.hideCursor();
         frameRenderer.render(layout);
-        statusBarRenderer.render(statusBarState, layout.region("statusBar"));
 
         renderChatPanel();
-        renderInputField();
+        renderStatusBar();
     }
 
     private void renderChatPanel() {
@@ -103,7 +102,7 @@ public class ChatTUI {
     }
 
     private void renderStatusBar() {
-        statusBarRenderer.render(statusBarState, layout.region("statusBar"));
+        statusBarRenderer.render(statusBarState, chatPanelState, layout.region("statusBar"));
         renderInputField();
     }
 
@@ -115,9 +114,8 @@ public class ChatTUI {
                 chatPanelState.addMessage(message);
 
                 synchronized (terminal) {
-                    renderStatusBar();
                     renderChatPanel();
-                    renderInputField();
+                    renderStatusBar();
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -231,22 +229,57 @@ public class ChatTUI {
     }
 
     private void handleMouseEvent(int button, int col, int row) {
-        TUILayout.Region chatRegion = layout.region("chatPanel");
+        boolean isMotion = (button & 32) != 0 && button != 64 && button != 65;
 
-        // Check if the mouse event is within the chat panel region
+        // Mouse position update handling
+        if (isMotion) {
+            handleMouseMotion(col, row);
+            return;
+        }
+
+        // Status bar scroll to bottom button handling
+        TUILayout.Region statusRegion = layout.region("statusBar");
+        if (button == 0 && row == statusRegion.firstRow
+                && statusBarRenderer.getButtonStartCol() != -1
+                && col >= statusBarRenderer.getButtonStartCol()
+                && col <= statusBarRenderer.getButtonEndCol()) {
+            synchronized (terminal) {
+                chatPanelState.resetScroll();
+                renderChatPanel();
+                renderStatusBar();
+            }
+            return;
+        }
+
+        // Chat scroll handling
+        TUILayout.Region chatRegion = layout.region("chatPanel");
         if (row < chatRegion.firstRow || row > chatRegion.lastRow) return;
         if (col < chatRegion.contentCol || col >= chatRegion.contentCol + chatRegion.contentWidth) return;
 
-        // Scroll the chat panel up or down based on the mouse wheel event
         synchronized (terminal) {
             if (button == 64) {
                 chatPanelState.scrollUp(SCROLL_LINES);
                 renderChatPanel();
-                renderInputField();
+                renderStatusBar();
             } else if (button == 65) {
                 chatPanelState.scrollDown(SCROLL_LINES);
                 renderChatPanel();
-                renderInputField();
+                renderStatusBar();
+            }
+        }
+    }
+
+    private void handleMouseMotion(int col, int row) {
+        TUILayout.Region statusRegion = layout.region("statusBar");
+        boolean overButton = row == statusRegion.firstRow
+                && statusBarRenderer.getButtonStartCol() != -1
+                && col >= statusBarRenderer.getButtonStartCol()
+                && col <= statusBarRenderer.getButtonEndCol();
+
+        if (overButton != statusBarRenderer.isHovering()) {
+            synchronized (terminal) {
+                statusBarRenderer.setHovering(overButton);
+                renderStatusBar();
             }
         }
     }
