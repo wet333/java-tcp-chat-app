@@ -14,6 +14,9 @@ public class BroadcastManager {
 
     private final Set<BroadcastMember> broadcastMembers = Collections.synchronizedSet(new HashSet<>());
 
+    private static final String SERVER_PREFIX = "";
+    private static final String USER_PREFIX = "> ";
+
     private BroadcastManager() {}
 
     public static BroadcastManager getInstance() {
@@ -33,7 +36,7 @@ public class BroadcastManager {
         synchronized (broadcastMembers) {
             for (BroadcastMember member : broadcastMembers) {
                 try {
-                    String messageToSend = member.getSessionId().equals(session.getSessionId()) ? "* " + message : message;
+                    String messageToSend = member.getSessionId().equals(session.getSessionId()) ? USER_PREFIX + message : message;
                     member.getWriter().write(messageToSend);
                     member.getWriter().newLine();
                     member.getWriter().flush();
@@ -50,7 +53,7 @@ public class BroadcastManager {
             for (BroadcastMember member : broadcastMembers) {
                 try {
                     if (member.getSessionId().equals(session.getSessionId())) {
-                        member.getWriter().write("Server: " + message);
+                        member.getWriter().write(SERVER_PREFIX + message);
                         member.getWriter().newLine();
                         member.getWriter().flush();
                         break;
@@ -63,7 +66,7 @@ public class BroadcastManager {
     }
 
     public void serverBroadcast(String message) {
-        String formattedMessage = "Server: " + message;
+        String formattedMessage = SERVER_PREFIX + message;
         synchronized (broadcastMembers) {
             for (BroadcastMember member : broadcastMembers) {
                 try {

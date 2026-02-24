@@ -47,7 +47,7 @@ public class ClientHandlerThread implements Runnable {
                 commandRouter.route(sessionHolder, clientMessage);
             }
 
-            String disconnectedMsg = "Client " + socket.getInetAddress().getHostAddress() + " has disconnected.";
+            String disconnectedMsg = "User <<" + session.getDisplayName() + ">> has disconnected.";
             broadcastManager.serverBroadcast(disconnectedMsg);
             logger.info(disconnectedMsg);
 
