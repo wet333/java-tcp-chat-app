@@ -1,12 +1,11 @@
 package online.awet.system.commands.handlers;
 
-import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.core.broadcast.ClientConnection;
 import online.awet.system.commands.*;
 import online.awet.system.commands.handlers.extensions.HelpProvider;
-import online.awet.system.sessions.AuthenticatedSession;
-import online.awet.system.sessions.Session;
-import online.awet.system.sessions.holder.SessionHolder;
+import online.awet.system.core.sessions.Session;
 
+import java.io.IOException;
 import java.util.Set;
 
 @RegisterCommandHandler
@@ -18,22 +17,19 @@ public class LogoutHandler implements CommandHandler, HelpProvider {
     }
 
     @Override
-    public void handle(SessionHolder sessionHolder, Command command) {
-        BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        Session currentSession = sessionHolder.getCurrentSession();
+    public void handle(ClientConnection connection, Command command) {
+        Session session = connection.getSession();
 
-        if (!(currentSession instanceof AuthenticatedSession)) {
-            broadcastManager.serverDirectMessage("You are not logged in", currentSession);
-            return;
-        }
+        try {
+            if (!session.isAuthenticated()) {
+                connection.send("You are not logged in");
+                return;
+            }
 
-        String username = currentSession.getDisplayName();
-        sessionHolder.deleteSession();
-
-        broadcastManager.serverDirectMessage(
-            "User " + username + " has been logged out.",
-            sessionHolder.getCurrentSession()
-        );
+            String username = session.getDisplayName();
+            connection.logout();
+            connection.send("User " + username + " has been logged out.");
+        } catch (IOException ignored) {}
     }
 
     @Override

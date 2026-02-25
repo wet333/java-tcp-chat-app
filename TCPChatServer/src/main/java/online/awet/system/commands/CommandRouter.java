@@ -1,7 +1,7 @@
 package online.awet.system.commands;
 
 import online.awet.system.core.SystemUtils;
-import online.awet.system.sessions.holder.SessionHolder;
+import online.awet.system.core.broadcast.ClientConnection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +48,7 @@ public class CommandRouter {
         logger.info("Loaded {} signatures from {} handlers", handlers.size(), discovered.size());
     }
 
-    public void route(SessionHolder sessionHolder, String rawMessage) {
+    public void route(ClientConnection connection, String rawMessage) {
         Command command;
         try {
             command = parser.parse(rawMessage);
@@ -65,7 +65,7 @@ public class CommandRouter {
         if (handler != null) {
             logger.info("{} <-- {}", handler.getClass().getSimpleName(), signature);
             try {
-                handler.handle(sessionHolder, command);
+                handler.handle(connection, command);
             } catch (Exception e) {
                 logger.error("Error handling command {}: {}", command.name(), e.getMessage());
             }

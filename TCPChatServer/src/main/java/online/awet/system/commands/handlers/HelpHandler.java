@@ -1,12 +1,11 @@
 package online.awet.system.commands.handlers;
 
-import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.core.broadcast.ClientConnection;
 import online.awet.system.commands.*;
 import online.awet.system.commands.handlers.extensions.HelpProvider;
 import online.awet.system.core.SystemUtils;
-import online.awet.system.sessions.Session;
-import online.awet.system.sessions.holder.SessionHolder;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,10 +18,7 @@ public class HelpHandler implements CommandHandler {
     }
 
     @Override
-    public void handle(SessionHolder sessionHolder, Command command) {
-        BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        Session session = sessionHolder.getCurrentSession();
-
+    public void handle(ClientConnection connection, Command command) {
         Map<Class<? extends CommandHandler>, CommandHandler> handlers =
             SystemUtils.instantiateClassesAnnotatedBy(
                 CommandHandler.class,
@@ -30,11 +26,13 @@ public class HelpHandler implements CommandHandler {
                 "online.awet.system.commands.handlers"
             );
 
-        broadcastManager.serverDirectMessage("Commands:", session);
-        for (CommandHandler handler : handlers.values()) {
-            if (handler instanceof HelpProvider helpProvider) {
-                broadcastManager.serverDirectMessage("  " + helpProvider.getDescription(), session);
+        try {
+            connection.send("Commands:");
+            for (CommandHandler handler : handlers.values()) {
+                if (handler instanceof HelpProvider helpProvider) {
+                    connection.send("  " + helpProvider.getDescription());
+                }
             }
-        }
+        } catch (IOException ignored) {}
     }
 }

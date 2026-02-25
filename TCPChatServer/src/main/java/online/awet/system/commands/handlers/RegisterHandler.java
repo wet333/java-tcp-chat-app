@@ -1,12 +1,12 @@
 package online.awet.system.commands.handlers;
 
-import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.core.broadcast.ClientConnection;
 import online.awet.system.commands.*;
 import online.awet.system.commands.handlers.extensions.HelpProvider;
-import online.awet.system.sessions.holder.SessionHolder;
 import online.awet.system.userManagement.AccountManager;
 import online.awet.system.userManagement.AccountManagerException;
 
+import java.io.IOException;
 import java.util.Set;
 
 @RegisterCommandHandler
@@ -18,8 +18,7 @@ public class RegisterHandler implements CommandHandler, HelpProvider {
     }
 
     @Override
-    public void handle(SessionHolder sessionHolder, Command command) {
-        BroadcastManager broadcastManager = BroadcastManager.getInstance();
+    public void handle(ClientConnection connection, Command command) {
         AccountManager accountManager = AccountManager.getInstance();
 
         String username = command.params().get("username");
@@ -27,12 +26,11 @@ public class RegisterHandler implements CommandHandler, HelpProvider {
 
         try {
             accountManager.addAccount(username, password);
-            broadcastManager.serverDirectMessage(
-                "User " + username + " has been registered.",
-                sessionHolder.getCurrentSession()
-            );
-        } catch (AccountManagerException e) {
-            broadcastManager.serverDirectMessage(e.getMessage(), sessionHolder.getCurrentSession());
+            connection.send("User " + username + " has been registered.");
+        } catch (AccountManagerException | IOException e) {
+            try {
+                connection.send(e.getMessage());
+            } catch (IOException ignored) {}
         }
     }
 

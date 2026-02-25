@@ -1,10 +1,8 @@
 package online.awet.threads;
 
-import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.core.broadcast.BroadcastManager;
+import online.awet.system.core.broadcast.ClientConnection;
 import online.awet.system.commands.CommandRouter;
-import online.awet.system.sessions.Session;
-import online.awet.system.sessions.holder.InMemorySessionHolder;
-import online.awet.system.sessions.holder.SessionHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,41 +15,37 @@ public class ClientHandlerThread implements Runnable {
 
     private final Socket socket;
     private final CommandRouter commandRouter;
-    private final SessionHolder sessionHolder;
 
     public ClientHandlerThread(Socket socket, CommandRouter commandRouter) {
         this.socket = socket;
         this.commandRouter = commandRouter;
-        this.sessionHolder = new InMemorySessionHolder();
     }
 
     public void run() {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        Session session = sessionHolder.getCurrentSession();
 
         try {
-            InputStream inputStream = socket.getInputStream();
-            OutputStream outputStream = socket.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            BufferedWriter socketWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+            ClientConnection connection = new ClientConnection(writer);
+            broadcastManager.addConnection(connection);
 
-            broadcastManager.addBroadcastMember(session, socketWriter);
-
-            logger.info("New client connected {}, sessionId: {}", socket.getRemoteSocketAddress(), session.getSessionId());
-            broadcastManager.serverDirectMessage("You have successfully connected to the server.", session);
+            logger.info("New client connected {}, connectionId: {}", socket.getRemoteSocketAddress(), connection.getId());
+            connection.send("You have successfully connected to the server.");
 
             String clientMessage;
             while ((clientMessage = reader.readLine()) != null) {
                 logger.debug("RAW: {}", clientMessage);
-                commandRouter.route(sessionHolder, clientMessage);
+                commandRouter.route(connection, clientMessage);
             }
 
-            String disconnectedMsg = "User <<" + session.getDisplayName() + ">> has disconnected.";
+            broadcastManager.removeConnection(connection);
+
+            String disconnectedMsg = "User <<" + connection.getSession().getDisplayName() + ">> has disconnected.";
             broadcastManager.serverBroadcast(disconnectedMsg);
             logger.info(disconnectedMsg);
 
-            broadcastManager.removeBroadcastMember(session);
             socket.close();
 
         } catch (IOException e) {

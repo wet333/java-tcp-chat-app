@@ -1,12 +1,12 @@
 package online.awet.system.commands.handlers;
 
-import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.core.broadcast.ClientConnection;
 import online.awet.system.commands.*;
 import online.awet.system.commands.handlers.extensions.HelpProvider;
-import online.awet.system.sessions.holder.SessionHolder;
 import online.awet.system.userManagement.AccountManager;
 import online.awet.system.userManagement.AccountManagerException;
 
+import java.io.IOException;
 import java.util.Set;
 
 @RegisterCommandHandler
@@ -18,8 +18,7 @@ public class UnregisterHandler implements CommandHandler, HelpProvider {
     }
 
     @Override
-    public void handle(SessionHolder sessionHolder, Command command) {
-        BroadcastManager broadcastManager = BroadcastManager.getInstance();
+    public void handle(ClientConnection connection, Command command) {
         AccountManager accountManager = AccountManager.getInstance();
 
         String username = command.params().get("username");
@@ -27,21 +26,17 @@ public class UnregisterHandler implements CommandHandler, HelpProvider {
 
         try {
             if (accountManager.getAccount(username, password) == null) {
-                broadcastManager.serverDirectMessage(
-                    "Invalid username or password", sessionHolder.getCurrentSession()
-                );
+                connection.send("Invalid username or password");
                 return;
             }
 
             accountManager.deleteAccount(username, password);
-            sessionHolder.deleteSession();
-
-            broadcastManager.serverDirectMessage(
-                "Account " + username + " has been unregistered and you have been logged out.",
-                sessionHolder.getCurrentSession()
-            );
-        } catch (AccountManagerException e) {
-            broadcastManager.serverDirectMessage(e.getMessage(), sessionHolder.getCurrentSession());
+            connection.logout();
+            connection.send("Account " + username + " has been unregistered and you have been logged out.");
+        } catch (AccountManagerException | IOException e) {
+            try {
+                connection.send(e.getMessage());
+            } catch (IOException ignored) {}
         }
     }
 

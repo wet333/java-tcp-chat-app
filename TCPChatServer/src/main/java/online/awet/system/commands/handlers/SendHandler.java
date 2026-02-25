@@ -1,9 +1,9 @@
 package online.awet.system.commands.handlers;
 
-import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.core.broadcast.BroadcastManager;
+import online.awet.system.core.broadcast.ClientConnection;
 import online.awet.system.commands.*;
-import online.awet.system.sessions.Session;
-import online.awet.system.sessions.holder.SessionHolder;
+import online.awet.system.core.sessions.Session;
 
 import java.util.Set;
 
@@ -16,10 +16,10 @@ public class SendHandler implements CommandHandler {
     }
 
     @Override
-    public void handle(SessionHolder sessionHolder, Command command) {
+    public void handle(ClientConnection connection, Command command) {
         BroadcastManager broadcastManager = BroadcastManager.getInstance();
-        Session session = sessionHolder.getCurrentSession();
+        Session session = connection.getSession();
         String message = session.getDisplayName() + ": " + command.params().get("msg");
-        broadcastManager.broadcast(message, session);
+        broadcastManager.broadcast(message, connection);
     }
 }

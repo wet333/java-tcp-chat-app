@@ -1,15 +1,14 @@
 package online.awet.system.commands.handlers;
 
-import online.awet.system.broadcast.BroadcastManager;
+import online.awet.system.core.broadcast.BroadcastManager;
+import online.awet.system.core.broadcast.ClientConnection;
 import online.awet.system.commands.*;
 import online.awet.system.commands.handlers.extensions.HelpProvider;
-import online.awet.system.sessions.AuthenticatedSession;
-import online.awet.system.sessions.holder.SessionHolder;
 import online.awet.system.userManagement.AccountManager;
 import online.awet.system.userManagement.AccountManagerException;
 import online.awet.system.userManagement.User;
 
-import java.util.Map;
+import java.io.IOException;
 import java.util.Set;
 
 @RegisterCommandHandler
@@ -21,8 +20,7 @@ public class LoginHandler implements CommandHandler, HelpProvider {
     }
 
     @Override
-    public void handle(SessionHolder sessionHolder, Command command) {
-        BroadcastManager broadcastManager = BroadcastManager.getInstance();
+    public void handle(ClientConnection connection, Command command) {
         AccountManager accountManager = AccountManager.getInstance();
 
         String username = command.params().get("username");
@@ -30,17 +28,12 @@ public class LoginHandler implements CommandHandler, HelpProvider {
 
         try {
             User user = accountManager.getAccount(username, password);
-
-            sessionHolder.authenticate(Map.of(
-                AuthenticatedSession.USERNAME, user.getUsername(),
-                AuthenticatedSession.ALIAS, user.getUsername()
-            ));
-
-            broadcastManager.serverDirectMessage(
-                "You are logged in as: " + username, sessionHolder.getCurrentSession()
-            );
-        } catch (AccountManagerException e) {
-            broadcastManager.serverDirectMessage(e.getMessage(), sessionHolder.getCurrentSession());
+            connection.authenticate(user.getUsername(), user.getUsername());
+            connection.send("You are logged in as: " + username);
+        } catch (AccountManagerException | IOException e) {
+            try {
+                connection.send(e.getMessage());
+            } catch (IOException ignored) {}
         }
     }
 
