@@ -51,6 +51,17 @@ public class BroadcastManager {
         }
     }
 
+    public void serverBroadcastExcludingSender(String message, ClientConnection sender) {
+        for (ClientConnection conn : connections.values()) {
+            if (conn.getId().equals(sender.getId())) continue;
+            try {
+                conn.send(message);
+            } catch (IOException e) {
+                logger.error("Couldn't send server broadcast <<{}>> to client {}", message, conn.getId(), e);
+            }
+        }
+    }
+
     public boolean sendToUser(String username, String message) {
         for (ClientConnection conn : connections.values()) {
             if (username.equals(conn.getSession().getUsername())) {

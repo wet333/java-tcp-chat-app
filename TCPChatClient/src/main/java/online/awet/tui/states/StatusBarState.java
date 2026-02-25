@@ -29,12 +29,12 @@ public class StatusBarState {
     }
 
     public synchronized void updateFromServerMessage(String message) {
-        if (message.startsWith("Server: You are logged in as: ")) {
-            String name = message.substring("Server: You are logged in as: ".length()).trim();
+        if (message.startsWith("You are logged in as: ")) {
+            String name = message.substring("You are logged in as: ".length()).trim();
             setAuthenticated(name);
-        } else if (message.startsWith("Server: User ") && message.endsWith(" has been logged out.")) {
+        } else if (message.startsWith("User ") && message.endsWith(" has been logged out.")) {
             setUnauthenticated();
-        } else if (message.startsWith("Server: Account ") && message.contains(" has been unregistered")) {
+        } else if (message.startsWith("Account ") && message.contains(" has been unregistered")) {
             setUnauthenticated();
         }
     }

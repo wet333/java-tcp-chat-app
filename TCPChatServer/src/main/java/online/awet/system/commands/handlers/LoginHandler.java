@@ -1,5 +1,6 @@
 package online.awet.system.commands.handlers;
 
+import online.awet.system.core.broadcast.BroadcastManager;
 import online.awet.system.core.broadcast.ClientConnection;
 import online.awet.system.commands.*;
 import online.awet.system.commands.handlers.extensions.HelpProvider;
@@ -29,6 +30,7 @@ public class LoginHandler implements CommandHandler, HelpProvider {
             User user = accountManager.getAccount(username, password);
             connection.authenticate(user.getUsername(), user.getUsername());
             connection.send("You are logged in as: " + username);
+            BroadcastManager.getInstance().serverBroadcastExcludingSender("User <<" + username + ">> has logged in.", connection);
         } catch (AccountManagerException | IOException e) {
             try {
                 connection.send(e.getMessage());

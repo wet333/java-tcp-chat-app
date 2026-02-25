@@ -34,6 +34,10 @@ public class ClientHandlerThread implements Runnable {
             logger.info("New client connected {}, connectionId: {}", socket.getRemoteSocketAddress(), connection.getId());
             connection.send("You have successfully connected to the server.");
 
+            String connectedMsg = "User <<" + connection.getSession().getDisplayName() + ">> has connected.";
+            broadcastManager.serverBroadcastExcludingSender(connectedMsg, connection);
+            logger.info(connectedMsg);
+
             String clientMessage;
             while ((clientMessage = reader.readLine()) != null) {
                 logger.debug("RAW: {}", clientMessage);
