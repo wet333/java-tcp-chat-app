@@ -1,59 +1,101 @@
 package online.awet.threads;
 
-import online.awet.system.core.broadcast.BroadcastManager;
-import online.awet.system.core.broadcast.ClientConnection;
-import online.awet.system.commands.CommandRouter;
+import online.awet.commons.Command;
+import online.awet.commons.CommandExecutorPool;
+import online.awet.commons.CommandSerializer;
+import online.awet.commons.CommandTarget;
+import online.awet.commons.CommandType;
+import online.awet.system.core.ClientConnection;
+import online.awet.system.core.ConnectionRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Map;
 
 public class ClientHandlerThread implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(ClientHandlerThread.class);
 
     private final Socket socket;
-    private final CommandRouter commandRouter;
+    private ClientConnection connection;
 
-    public ClientHandlerThread(Socket socket, CommandRouter commandRouter) {
+    public ClientHandlerThread(Socket socket) {
         this.socket = socket;
-        this.commandRouter = commandRouter;
     }
 
     public void run() {
-        BroadcastManager broadcastManager = BroadcastManager.getInstance();
+        ConnectionRegistry registry = ConnectionRegistry.getInstance();
 
         try {
-            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            ClientConnection connection = new ClientConnection(writer);
-            broadcastManager.addConnection(connection);
+            // Connection process: constructor creates streams and auto-registers.
+            connection = new ClientConnection(socket);
 
             logger.info("New client connected {}, connectionId: {}", socket.getRemoteSocketAddress(), connection.getId());
-            connection.send("You have successfully connected to the server.");
 
-            String connectedMsg = "User <<" + connection.getSession().getDisplayName() + ">> has connected.";
-            broadcastManager.serverBroadcastExcludingSender(connectedMsg, connection);
-            logger.info(connectedMsg);
+            // Welcome message and connection announcement.
+            sendWelcomeMessage(connection);
+            announceConnection(connection);
 
-            String clientMessage;
-            while ((clientMessage = reader.readLine()) != null) {
-                logger.debug("RAW: {}", clientMessage);
-                commandRouter.route(connection, clientMessage);
+            // Command processing loop.
+            String jsonLine;
+            while ((jsonLine = connection.getReader().readLine()) != null) {
+                logger.debug("RAW JSON: {}", jsonLine);
+                ClientConnection.CURRENT_CONNECTION.set(connection);
+                try {
+                    CommandExecutorPool.getInstance().select(CommandSerializer.fromJson(jsonLine));
+                } catch (IllegalArgumentException e) {
+                    Command err = Command.of(
+                        CommandType.PRINT_MSG,
+                        CommandTarget.CLIENT,
+                        Map.of("msg", "Unknown command.")
+                    );
+                    registry.sendToConnection(connection.getId(), err);
+                } catch (Exception e) {
+                    logger.warn("Failed to process command from client {}: {}", connection.getId(), e.getMessage());
+                } finally {
+                    ClientConnection.CURRENT_CONNECTION.remove();
+                }
             }
 
-            broadcastManager.removeConnection(connection);
-
-            String disconnectedMsg = "User <<" + connection.getSession().getDisplayName() + ">> has disconnected.";
-            broadcastManager.serverBroadcast(disconnectedMsg);
-            logger.info(disconnectedMsg);
-
-            socket.close();
+            // Disconnection process.
+            registry.unregister(connection.getId());
+            announceDisconnection(connection);
+            connection.close();
 
         } catch (IOException e) {
             logger.error("Error while handling connection IO", e);
         }
+    }
+
+    private void sendWelcomeMessage(ClientConnection connection) {
+        Command welcome = Command.of(
+            CommandType.PRINT_MSG,
+            CommandTarget.CLIENT,
+            Map.of("msg", "You have successfully connected to the server.")
+        );
+        ConnectionRegistry.getInstance().sendToConnection(connection.getId(), welcome);
+    }
+
+    private void announceConnection(ClientConnection connection) {
+        String connectedMsg = "User <<" + connection.getSession().getDisplayName() + ">> has connected.";
+        Command connectedNotice = Command.of(
+            CommandType.PRINT_MSG,
+            CommandTarget.CLIENT,
+            Map.of("msg", connectedMsg)
+        );
+        ConnectionRegistry.getInstance().broadcastExcept(connection.getId(), connectedNotice);
+        logger.info(connectedMsg);
+    }
+
+    private void announceDisconnection(ClientConnection connection) {
+        String disconnectedMsg = "User <<" + connection.getSession().getDisplayName() + ">> has disconnected.";
+        Command disconnectedNotice = Command.of(
+            CommandType.PRINT_MSG,
+            CommandTarget.CLIENT,
+            Map.of("msg", disconnectedMsg)
+        );
+        ConnectionRegistry.getInstance().broadcastExcept(connection.getId(), disconnectedNotice);
     }
 }

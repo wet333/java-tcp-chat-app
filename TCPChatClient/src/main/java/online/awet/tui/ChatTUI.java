@@ -1,5 +1,11 @@
 package online.awet.tui;
 
+import online.awet.commons.Command;
+import online.awet.commons.CommandSerializer;
+import online.awet.system.ClientContext;
+import online.awet.system.commands.ClientCommandProcessor;
+import online.awet.system.commands.ClientInputParser;
+import online.awet.system.commands.ClientInputParserException;
 import online.awet.tui.renderers.ChatPanelRenderer;
 import online.awet.tui.renderers.FrameRenderer;
 import online.awet.tui.renderers.InputFieldRenderer;
@@ -24,7 +30,7 @@ public class ChatTUI {
     private final ChatPanelRenderer chatPanelRenderer;
     private final InputFieldRenderer inputFieldRenderer;
     private final BufferedWriter serverWriter;
-    private final BlockingQueue<String> messageQueue;
+    private final BlockingQueue<Command> commandQueue;
     private final AtomicBoolean running;
 
     // TUI Configurations
@@ -35,7 +41,7 @@ public class ChatTUI {
         .fill("chatPanel")
         .fixed("input", 1);
 
-    public ChatTUI(BufferedWriter serverWriter, BlockingQueue<String> messageQueue) {
+    public ChatTUI(BufferedWriter serverWriter, BlockingQueue<Command> commandQueue) {
         this.terminal = new Terminal();
         this.statusBarState = new StatusBarState();
         this.chatPanelState = new ChatPanelState();
@@ -45,8 +51,19 @@ public class ChatTUI {
         this.chatPanelRenderer = new ChatPanelRenderer(terminal);
         this.inputFieldRenderer = new InputFieldRenderer(terminal);
         this.serverWriter = serverWriter;
-        this.messageQueue = messageQueue;
+        this.commandQueue = commandQueue;
         this.running = new AtomicBoolean(false);
+
+        // Initialize the centralized client context before executor loading
+        ClientContext.getInstance().initialize(
+            statusBarState,
+            chatPanelState,
+            serverWriter,
+            this::onCommandProcessed
+        );
+
+        // Triggers executor discovery — must run after ClientContext is initialized
+        ClientCommandProcessor.getInstance();
     }
 
     public void start() throws IOException {
@@ -106,17 +123,22 @@ public class ChatTUI {
         renderInputField();
     }
 
+    /**
+     * Callback invoked by {@link ClientContext#notifyStateChanged()} from the message-consumer
+     * thread after an executor mutates state. Runs re-renders under the terminal lock.
+     */
+    private void onCommandProcessed() {
+        synchronized (terminal) {
+            renderChatPanel();
+            renderStatusBar();
+        }
+    }
+
     private void messageConsumerLoop() {
         while (running.get()) {
             try {
-                String message = messageQueue.take();
-                statusBarState.updateFromServerMessage(message);
-                chatPanelState.addMessage(message);
-
-                synchronized (terminal) {
-                    renderChatPanel();
-                    renderStatusBar();
-                }
+                Command command = commandQueue.take();
+                ClientCommandProcessor.getInstance().process(command);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
@@ -170,9 +192,16 @@ public class ChatTUI {
         }
 
         try {
-            serverWriter.write(text);
+            Command command = new ClientInputParser().parse(text);
+            serverWriter.write(CommandSerializer.toJson(command));
             serverWriter.newLine();
             serverWriter.flush();
+        } catch (ClientInputParserException e) {
+            chatPanelState.addMessage("Error: " + e.getMessage());
+            synchronized (terminal) {
+                renderChatPanel();
+                renderStatusBar();
+            }
         } catch (IOException e) {
             chatPanelState.addMessage("Error: could not send message");
         }

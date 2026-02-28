@@ -29,7 +29,7 @@ public class ChatClient {
         receiverThread.setDaemon(true);
         receiverThread.start();
 
-        tui = new ChatTUI(serverWriter, receiver.getMessageQueue());
+        tui = new ChatTUI(serverWriter, receiver.getCommandQueue());
         tui.start();
     }
 

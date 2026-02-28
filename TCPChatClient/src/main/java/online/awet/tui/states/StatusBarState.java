@@ -27,15 +27,4 @@ public class StatusBarState {
         this.username = "guest";
         this.authenticated = false;
     }
-
-    public synchronized void updateFromServerMessage(String message) {
-        if (message.startsWith("You are logged in as: ")) {
-            String name = message.substring("You are logged in as: ".length()).trim();
-            setAuthenticated(name);
-        } else if (message.startsWith("User ") && message.endsWith(" has been logged out.")) {
-            setUnauthenticated();
-        } else if (message.startsWith("Account ") && message.contains(" has been unregistered")) {
-            setUnauthenticated();
-        }
-    }
 }

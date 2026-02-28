@@ -6,9 +6,8 @@ client_dir=$root_dir/TCPChatClient
 server_dir=$root_dir/TCPChatServer
 dist_dev_dir=$root_dir/dist
 
-# Build all modules
-cd "$client_dir" && mvn clean -U install
-cd "$server_dir" && mvn clean -U install
+# Build all modules (Commons first, then Server and Client)
+cd "$root_dir" && mvn clean -U install
 
 # Create dist/dev directory if it doesn't exist
 mkdir -p "$dist_dev_dir"

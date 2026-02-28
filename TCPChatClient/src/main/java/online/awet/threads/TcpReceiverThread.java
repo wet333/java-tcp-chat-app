@@ -1,5 +1,7 @@
 package online.awet.threads;
 
+import online.awet.commons.Command;
+import online.awet.commons.CommandSerializer;
 import online.awet.system.Connector;
 import online.awet.system.ConnectorException;
 
@@ -14,14 +16,14 @@ public class TcpReceiverThread implements Runnable {
 
     private static TcpReceiverThread instance;
 
-    private final BlockingQueue<String> messageQueue;
+    private final BlockingQueue<Command> commandQueue;
 
     private TcpReceiverThread() {
-        messageQueue = new LinkedBlockingQueue<>();
+        commandQueue = new LinkedBlockingQueue<>();
     }
 
     public static TcpReceiverThread getInstance() {
-        if (instance == null) { 
+        if (instance == null) {
             instance = new TcpReceiverThread();
         }
         return instance;
@@ -31,16 +33,23 @@ public class TcpReceiverThread implements Runnable {
     public void run() {
         try {
             Socket serverSocket = Connector.getInstance().getServerSocket();
-            try (BufferedReader serverMessageStream = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()))) {
-                String serverMessage;
-                while ((serverMessage = serverMessageStream.readLine()) != null) {
-                    if (!serverMessage.isBlank()) {
-                        messageQueue.put(serverMessage);
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.isBlank()) continue;
+                    Command command = null;
+                    try {
+                        command = CommandSerializer.fromJson(line);
+                    } catch (Exception e) {
+                        System.out.println("Failed to deserialize server message: " + e.getMessage());
+                    }
+                    if (command != null) {
+                        commandQueue.put(command);
                     }
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error while running or starting TCPReceiverThread: " + e.getMessage());
+            System.out.println("Error while running or starting TcpReceiverThread: " + e.getMessage());
         } catch (ConnectorException e) {
             System.out.println(e.getMessage());
         } catch (InterruptedException e) {
@@ -48,15 +57,11 @@ public class TcpReceiverThread implements Runnable {
         }
     }
 
-    public BlockingQueue<String> getMessageQueue() {
-        return messageQueue;
+    public BlockingQueue<Command> getCommandQueue() {
+        return commandQueue;
     }
 
-    public boolean hasMessages() {
-        return !messageQueue.isEmpty();
-    }
-
-    public String getNextMessage() throws InterruptedException {
-        return messageQueue.take();
+    public Command getNextCommand() throws InterruptedException {
+        return commandQueue.take();
     }
 }
