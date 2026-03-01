@@ -23,14 +23,21 @@ public class HelpExecutor implements CommandExecutor {
     public void execute(Command command) {
         if (ClientConnection.currentConnection() == null) return;
 
-        StringBuilder helpText = new StringBuilder("Commands:");
+        sendHelpMessageLine("Commands:");
+
         for (CommandExecutor executor : CommandExecutorPool.getInstance().getAll()) {
             if (executor instanceof HelpProvider hp) {
-                helpText.append("\n  ").append(hp.getDescription());
+                sendHelpMessageLine("    " + hp.getHelp());
             }
         }
+    }
 
-        ConnectionRegistry.getInstance().sendToCurrentConnection(Command.of(CommandType.PRINT_MSG, CommandTarget.CLIENT,
-            Map.of("msg", helpText.toString())));
+    private void sendHelpMessageLine(String line) {
+        Command helpLineMessage = Command.of(
+            CommandType.PRINT_MSG, 
+            CommandTarget.CLIENT,
+            Map.of("msg", line)
+        );
+        ConnectionRegistry.getInstance().sendToCurrentConnection(helpLineMessage);
     }
 }

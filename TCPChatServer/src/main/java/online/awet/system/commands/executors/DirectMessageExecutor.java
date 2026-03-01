@@ -29,21 +29,36 @@ public class DirectMessageExecutor implements CommandExecutor, HelpProvider {
         ConnectionRegistry registry = ConnectionRegistry.getInstance();
 
         if (targetUsername.equals(sender.getSession().getUsername())) {
-            registry.sendToCurrentConnection(Command.of(CommandType.PRINT_MSG, CommandTarget.CLIENT,
-                Map.of("msg", "You cannot send a private message to yourself.")));
+            Command message = Command.of(
+                CommandType.PRINT_MSG, 
+                CommandTarget.CLIENT,
+                Map.of("msg", "You cannot send a private message to yourself.")
+            );
+            registry.sendToCurrentConnection(message);
             return;
         }
 
-        Command dm = Command.of(CommandType.DM_MSG, CommandTarget.CLIENT,
-            Map.of("sender", senderName, "recipient", targetUsername, "msg", msg));
+        Command dm = Command.of(
+            CommandType.DM_MSG, 
+            CommandTarget.CLIENT,
+            Map.of("sender", senderName, "recipient", targetUsername, "msg", msg)
+        );
         boolean delivered = registry.sendToUser(targetUsername, dm);
 
         if (delivered) {
-            registry.sendToCurrentConnection(Command.of(CommandType.DM_MSG, CommandTarget.CLIENT,
-                Map.of("sender", senderName, "recipient", targetUsername, "msg", msg)));
+            Command dmStatusMessage = Command.of(
+                CommandType.DM_MSG, 
+                CommandTarget.CLIENT,
+                Map.of("sender", senderName, "recipient", targetUsername, "msg", msg)
+            );
+            registry.sendToCurrentConnection(dmStatusMessage);
         } else {
-            registry.sendToCurrentConnection(Command.of(CommandType.PRINT_MSG, CommandTarget.CLIENT,
-                Map.of("msg", "User '" + targetUsername + "' is not connected.")));
+            Command dmNotConnectedMessage = Command.of(
+                CommandType.PRINT_MSG, 
+                CommandTarget.CLIENT,
+                Map.of("msg", "User '" + targetUsername + "' is not connected.")
+            );
+            registry.sendToCurrentConnection(dmNotConnectedMessage);
         }
     }
 

@@ -12,6 +12,9 @@ cd "$root_dir" && mvn clean -U install
 # Create dist/dev directory if it doesn't exist
 mkdir -p "$dist_dev_dir"
 
+# Remove old JARs before copying new ones
+rm -f "$dist_dev_dir"/*.jar
+
 # Copy JAR artifacts to dist/ with version numbers
 client_jar=$(ls "$client_dir/target"/TCPChatClient-*.jar | head -1)
 server_jar=$(ls "$server_dir/target"/TCPChatServer-*.jar | head -1)

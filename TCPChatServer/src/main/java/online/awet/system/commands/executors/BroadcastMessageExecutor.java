@@ -26,8 +26,11 @@ public class BroadcastMessageExecutor implements CommandExecutor {
         String senderName = sender.getSession().getDisplayName();
         String text = command.getParams().get("msg");
 
-        Command out = Command.of(CommandType.CHAT_MSG, CommandTarget.CLIENT,
-            Map.of("sender", senderName, "msg", text));
-        ConnectionRegistry.getInstance().broadcast(out);
+        Command broadcastMessage = Command.of(
+            CommandType.CHAT_MSG, 
+            CommandTarget.CLIENT,
+            Map.of("sender", senderName, "msg", text)
+        );
+        ConnectionRegistry.getInstance().broadcast(broadcastMessage);
     }
 }
