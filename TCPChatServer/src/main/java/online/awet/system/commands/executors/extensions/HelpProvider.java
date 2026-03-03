@@ -1,4 +1,4 @@
-package online.awet.system.commands.executors;
+package online.awet.system.commands.executors.extensions;
 
 /**
  * Optional interface for {@link online.awet.commons.CommandExecutor} implementations

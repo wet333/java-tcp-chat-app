@@ -5,6 +5,7 @@ import online.awet.commons.CommandExecutor;
 import online.awet.commons.CommandSignature;
 import online.awet.commons.CommandTarget;
 import online.awet.commons.CommandType;
+import online.awet.system.commands.executors.extensions.HelpProvider;
 import online.awet.system.core.ClientConnection;
 import online.awet.system.core.ConnectionRegistry;
 import online.awet.system.core.sessions.Session;
@@ -28,19 +29,31 @@ public class LogoutExecutor implements CommandExecutor, HelpProvider {
         ConnectionRegistry registry = ConnectionRegistry.getInstance();
 
         if (!session.isAuthenticated()) {
-            registry.sendToCurrentConnection(Command.of(CommandType.PRINT_MSG, CommandTarget.CLIENT,
-                Map.of("msg", "You are not logged in.")));
+            Command notLoggedInMessage = Command.of(
+                CommandType.PRINT_MSG, 
+                CommandTarget.CLIENT,
+                Map.of("msg", "You are not logged in.")
+            );
+            registry.sendToCurrentConnection(notLoggedInMessage);
             return;
         }
 
         String username = session.getDisplayName();
         connection.logout();
 
-        registry.sendToCurrentConnection(Command.of(CommandType.UPDATE_STATUS, CommandTarget.CLIENT,
-            Map.of("authenticated", "false", "username", "")));
+        Command updateClientStatus = Command.of(
+            CommandType.UPDATE_STATUS, 
+            CommandTarget.CLIENT,
+            Map.of("authenticated", "false", "username", "")
+        );
+        registry.sendToCurrentConnection(updateClientStatus);
 
-        registry.sendToCurrentConnection(Command.of(CommandType.PRINT_MSG, CommandTarget.CLIENT,
-            Map.of("msg", "User " + username + " has been logged out.")));
+        Command logoutAnouncement = Command.of(
+            CommandType.PRINT_MSG, 
+            CommandTarget.CLIENT,
+            Map.of("msg", "User " + username + " has been logged out.")
+        );
+        registry.broadcastExcept(connection.getId(), logoutAnouncement);
     }
 
     @Override

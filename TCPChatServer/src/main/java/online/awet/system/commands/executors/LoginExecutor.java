@@ -5,6 +5,7 @@ import online.awet.commons.CommandExecutor;
 import online.awet.commons.CommandSignature;
 import online.awet.commons.CommandTarget;
 import online.awet.commons.CommandType;
+import online.awet.system.commands.executors.extensions.HelpProvider;
 import online.awet.system.core.ClientConnection;
 import online.awet.system.core.ConnectionRegistry;
 import online.awet.system.userManagement.AccountManager;
@@ -34,11 +35,19 @@ public class LoginExecutor implements CommandExecutor, HelpProvider {
             User user = AccountManager.getInstance().getAccount(username, password);
             connection.authenticate(user.getUsername(), user.getUsername());
 
-            registry.sendToCurrentConnection(Command.of(CommandType.UPDATE_STATUS, CommandTarget.CLIENT,
-                Map.of("authenticated", "true", "username", username)));
+            Command updateClientStatus = Command.of(
+                CommandType.UPDATE_STATUS, 
+                CommandTarget.CLIENT,
+                Map.of("authenticated", "true", "username", username)
+            );
+            registry.sendToCurrentConnection(updateClientStatus);
 
-            registry.broadcastExcept(connection.getId(), Command.of(CommandType.PRINT_MSG, CommandTarget.CLIENT,
-                Map.of("msg", "User <<" + username + ">> has logged in.")));
+            Command loginAnouncement = Command.of(
+                CommandType.PRINT_MSG, 
+                CommandTarget.CLIENT,
+                Map.of("msg", "User <<" + username + ">> has logged in.")
+            );
+            registry.broadcastExcept(connection.getId(), loginAnouncement);
 
         } catch (AccountManagerException e) {
             registry.sendToCurrentConnection(Command.of(CommandType.PRINT_MSG, CommandTarget.CLIENT,

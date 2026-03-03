@@ -5,6 +5,7 @@ import online.awet.commons.CommandExecutor;
 import online.awet.commons.CommandSignature;
 import online.awet.commons.CommandTarget;
 import online.awet.commons.CommandType;
+import online.awet.system.commands.executors.extensions.HelpProvider;
 import online.awet.system.core.ClientConnection;
 import online.awet.system.core.ConnectionRegistry;
 import online.awet.system.userManagement.AccountManager;

@@ -5,6 +5,7 @@ import online.awet.commons.CommandExecutor;
 import online.awet.commons.CommandSignature;
 import online.awet.commons.CommandTarget;
 import online.awet.commons.CommandType;
+import online.awet.system.commands.executors.extensions.HelpProvider;
 import online.awet.system.core.ClientConnection;
 import online.awet.system.core.ConnectionRegistry;
 import online.awet.system.userManagement.AccountManager;
@@ -26,17 +27,25 @@ public class RegisterExecutor implements CommandExecutor, HelpProvider {
 
         String username = command.getParams().get("username");
         String password = command.getParams().get("password");
+        ConnectionRegistry registry = ConnectionRegistry.getInstance();
 
-        Command out;
         try {
             AccountManager.getInstance().addAccount(username, password);
-            out = Command.of(CommandType.PRINT_MSG, CommandTarget.CLIENT,
-                Map.of("msg", "User " + username + " has been registered."));
+            Command registerAnouncement = Command.of(
+                CommandType.PRINT_MSG, 
+                CommandTarget.CLIENT,
+                Map.of("msg", "User " + username + " has been registered.")
+            );
+            registry.sendToCurrentConnection(registerAnouncement);
+
         } catch (AccountManagerException e) {
-            out = Command.of(CommandType.PRINT_MSG, CommandTarget.CLIENT,
-                Map.of("msg", e.getMessage()));
+            Command registerErrorMessage = Command.of(
+                CommandType.PRINT_MSG, 
+                CommandTarget.CLIENT,
+                Map.of("msg", e.getMessage())
+            );
+            registry.sendToCurrentConnection(registerErrorMessage);
         }
-        ConnectionRegistry.getInstance().sendToCurrentConnection(out);
     }
 
     @Override
@@ -46,6 +55,6 @@ public class RegisterExecutor implements CommandExecutor, HelpProvider {
 
     @Override
     public String getDescription() {
-        return "/register: Allows you to register.";
+        return "/register: Allows you to register a new account.";
     }
 }
