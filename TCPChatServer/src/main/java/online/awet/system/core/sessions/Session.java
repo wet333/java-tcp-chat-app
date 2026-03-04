@@ -1,6 +1,9 @@
 package online.awet.system.core.sessions;
 
+import online.awet.system.core.sessions.SessionColorGenerator;
+
 import java.util.Objects;
+import java.util.Map;
 
 public class Session {
 
@@ -9,11 +12,13 @@ public class Session {
     private String alias;
     private boolean isAuthenticated;
     private boolean isAnonymous;
+    private final Map<String, Float> color;
 
     public Session(String id) {
         this.id = id;
         this.isAuthenticated = false;
         this.isAnonymous = true;
+        this.color = SessionColorGenerator.generateColor();
     }
 
     public String getId() {
@@ -52,6 +57,10 @@ public class Session {
     public void setAnonymous(boolean anonymous) {
         this.isAnonymous = anonymous;
         this.isAuthenticated = !anonymous;
+    }
+
+    public Map<String, Float> getColor() {
+        return color;
     }
 
     public String getDisplayName() {

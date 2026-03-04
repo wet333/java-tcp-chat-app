@@ -8,6 +8,7 @@ import online.awet.commons.CommandType;
 import online.awet.system.core.ClientConnection;
 import online.awet.system.core.ConnectionRegistry;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,12 +26,20 @@ public class BroadcastMessageExecutor implements CommandExecutor {
 
         String senderName = sender.getSession().getDisplayName();
         String text = command.getParams().get("msg");
+        Map<String, Float> color = sender.getSession().getColor();
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("session_color", "true");
+        metadata.put("r", color.get("r").toString());
+        metadata.put("g", color.get("g").toString());
+        metadata.put("b", color.get("b").toString());
 
         Command broadcastMessage = Command.of(
             CommandType.CHAT_MSG, 
             CommandTarget.CLIENT,
             Map.of("sender", senderName, "msg", text)
         );
+        broadcastMessage.setMetadata(metadata);
         ConnectionRegistry.getInstance().broadcastExcept(sender.getId(), broadcastMessage);
 
         Command selfMessage = Command.of(
@@ -38,7 +47,8 @@ public class BroadcastMessageExecutor implements CommandExecutor {
             CommandTarget.CLIENT,
             Map.of("sender", senderName, "msg", text)
         );
-        selfMessage.setMetadata(Map.of("echo", "true"));
+        metadata.put("echo", "true");
+        selfMessage.setMetadata(metadata);
         ConnectionRegistry.getInstance().sendToCurrentConnection(selfMessage);
     }
 }

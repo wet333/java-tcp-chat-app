@@ -23,17 +23,29 @@ public class ChatMessageExecutor implements CommandExecutor {
         String sender = command.getParams().get("sender");
         String msg = command.getParams().get("msg");
         boolean isEcho = command.getMetadata().get("echo") != null;
+        var meta = command.getMetadata();
+
+        boolean hasSessionColor = "true".equals(meta.get("session_color"));
+        float r = parseFloat(meta.get("r"), 1f);
+        float g = parseFloat(meta.get("g"), 1f);
+        float b = parseFloat(meta.get("b"), 1f);
 
         ClientContext ctx = ClientContext.getInstance();
 
-        String line;
-        if (isEcho) {
-            line = new TerminalString(sender + ":").color(ANSIColor.BRIGHT_YELLOW).underline().build() + " " + msg;
-        } else {
-            line = TerminalFormatUtils.color(sender + ": " + msg, ANSIColor.WHITE);
-        }
+        TerminalString line = new TerminalString(sender + ":");
+        if (isEcho) line = line.underline();
+        if (hasSessionColor) line = line.color(r, g, b);
 
-        ctx.getChatPanelState().addMessage(line);
+        ctx.getChatPanelState().addMessage(line.build() + " " + msg);
         ctx.notifyStateChanged();
+    }
+
+    private static float parseFloat(String s, float fallback) {
+        if (s == null || s.isBlank()) return fallback;
+        try {
+            return Float.parseFloat(s);
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
     }
 }
