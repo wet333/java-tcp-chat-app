@@ -39,6 +39,7 @@ public class User {
         this.ip = ip;
     }
 
+    @Override
     public String toString() {
         return username;
     }

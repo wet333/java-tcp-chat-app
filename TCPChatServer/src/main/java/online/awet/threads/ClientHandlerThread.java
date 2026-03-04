@@ -31,8 +31,8 @@ public class ClientHandlerThread implements Runnable {
         ConnectionRegistry registry = ConnectionRegistry.getInstance();
 
         try {
-            // Connection process: constructor creates streams and auto-registers.
             connection = new ClientConnection(socket);
+            registry.register(connection);
 
             logger.info("New client connected {}, connectionId: {}", socket.getRemoteSocketAddress(), connection.getId());
 

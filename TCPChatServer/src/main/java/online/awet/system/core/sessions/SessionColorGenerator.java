@@ -45,7 +45,7 @@ public class SessionColorGenerator {
     };
 
     private static int counter = 0;
-    private static List<Map<String, Float>> colors = generateListOfColors();
+    private static final List<Map<String, Float>> colors = generateListOfColors();
 
     public static Map<String, Float> generateColor() {
         return colors.get(counter++ % colors.size());
