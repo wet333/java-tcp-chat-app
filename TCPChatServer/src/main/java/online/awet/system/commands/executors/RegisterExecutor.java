@@ -1,5 +1,8 @@
 package online.awet.system.commands.executors;
 
+import java.util.Map;
+import java.util.Set;
+
 import online.awet.commons.Command;
 import online.awet.commons.CommandExecutor;
 import online.awet.commons.CommandSignature;
@@ -10,9 +13,6 @@ import online.awet.system.core.ClientConnection;
 import online.awet.system.core.ConnectionRegistry;
 import online.awet.system.userManagement.AccountManager;
 import online.awet.system.userManagement.AccountManagerException;
-
-import java.util.Map;
-import java.util.Set;
 
 public class RegisterExecutor implements CommandExecutor, HelpProvider {
 

@@ -1,5 +1,12 @@
 package online.awet.threads;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import online.awet.commons.Command;
 import online.awet.commons.CommandExecutorPool;
 import online.awet.commons.CommandSerializer;
@@ -7,12 +14,6 @@ import online.awet.commons.CommandTarget;
 import online.awet.commons.CommandType;
 import online.awet.system.core.ClientConnection;
 import online.awet.system.core.ConnectionRegistry;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.net.Socket;
-import java.util.Map;
 
 public class ClientHandlerThread implements Runnable {
 
@@ -25,6 +26,7 @@ public class ClientHandlerThread implements Runnable {
         this.socket = socket;
     }
 
+    @Override
     public void run() {
         ConnectionRegistry registry = ConnectionRegistry.getInstance();
 

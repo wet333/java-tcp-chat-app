@@ -1,14 +1,14 @@
 package online.awet;
 
-import online.awet.configurations.Configuration;
-import online.awet.system.Connector;
-import online.awet.threads.TcpReceiverThread;
-import online.awet.tui.ChatTUI;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+
+import online.awet.configurations.Configuration;
+import online.awet.system.Connector;
+import online.awet.threads.TcpReceiverThread;
+import online.awet.tui.ChatTUI;
 
 public class ChatClient {
 

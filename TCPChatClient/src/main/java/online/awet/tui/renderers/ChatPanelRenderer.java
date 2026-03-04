@@ -1,12 +1,12 @@
 package online.awet.tui.renderers;
 
-import online.awet.tui.TUILayout;
-import online.awet.tui.terminal.Terminal;
-import online.awet.tui.terminal.TerminalFormatUtils;
-import online.awet.tui.states.ChatPanelState;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import online.awet.tui.TUILayout;
+import online.awet.tui.states.ChatPanelState;
+import online.awet.tui.terminal.Terminal;
+import online.awet.tui.terminal.TerminalFormatUtils;
 
 public class ChatPanelRenderer {
 

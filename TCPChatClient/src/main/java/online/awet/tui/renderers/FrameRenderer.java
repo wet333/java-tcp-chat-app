@@ -1,9 +1,9 @@
 package online.awet.tui.renderers;
 
+import java.util.List;
+
 import online.awet.tui.TUILayout;
 import online.awet.tui.terminal.Terminal;
-
-import java.util.List;
 
 public class FrameRenderer {
 

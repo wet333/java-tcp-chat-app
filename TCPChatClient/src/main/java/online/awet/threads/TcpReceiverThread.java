@@ -1,16 +1,16 @@
 package online.awet.threads;
 
-import online.awet.commons.Command;
-import online.awet.commons.CommandSerializer;
-import online.awet.system.Connector;
-import online.awet.system.ConnectorException;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import online.awet.commons.Command;
+import online.awet.commons.CommandSerializer;
+import online.awet.system.Connector;
+import online.awet.system.ConnectorException;
 
 public class TcpReceiverThread implements Runnable {
 

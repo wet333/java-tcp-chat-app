@@ -1,5 +1,8 @@
 package online.awet.system.commands.executors;
 
+import java.util.Map;
+import java.util.Set;
+
 import online.awet.commons.Command;
 import online.awet.commons.CommandExecutor;
 import online.awet.commons.CommandSignature;
@@ -9,9 +12,6 @@ import online.awet.system.commands.executors.extensions.HelpProvider;
 import online.awet.system.core.ClientConnection;
 import online.awet.system.core.ConnectionRegistry;
 import online.awet.system.core.sessions.Session;
-
-import java.util.Map;
-import java.util.Set;
 
 public class LogoutExecutor implements CommandExecutor, HelpProvider {
 

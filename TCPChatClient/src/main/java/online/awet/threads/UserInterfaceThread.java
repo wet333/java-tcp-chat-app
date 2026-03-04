@@ -1,12 +1,12 @@
 package online.awet.threads;
 
-import online.awet.system.Connector;
-
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.Scanner;
+
+import online.awet.system.Connector;
 
 public class UserInterfaceThread implements Runnable {
 
@@ -23,8 +23,6 @@ public class UserInterfaceThread implements Runnable {
             writer = new BufferedWriter(new OutputStreamWriter(serverSocket.getOutputStream()));
         } catch (IOException e) {
             System.out.println("There was an error initializing the UserInterfaceThread instance.");
-        } catch (Exception e) {
-            System.out.println();
         }
     }
 

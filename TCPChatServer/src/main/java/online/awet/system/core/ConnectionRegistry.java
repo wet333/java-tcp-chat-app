@@ -1,12 +1,13 @@
 package online.awet.system.core;
 
-import online.awet.commons.Command;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import online.awet.commons.Command;
 
 /**
  * <p>Global registry for all active client connections.</p>

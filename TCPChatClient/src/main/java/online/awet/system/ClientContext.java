@@ -1,12 +1,12 @@
 package online.awet.system;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+
 import online.awet.commons.Command;
 import online.awet.commons.CommandSerializer;
 import online.awet.tui.states.ChatPanelState;
 import online.awet.tui.states.StatusBarState;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
 
 /**
  * Singleton that centralizes client-side TUI state and the server connection writer.

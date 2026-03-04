@@ -1,12 +1,12 @@
 package online.awet.client.commands.executors;
 
+import java.util.Set;
+
 import online.awet.commons.Command;
 import online.awet.commons.CommandExecutor;
 import online.awet.commons.CommandSignature;
 import online.awet.commons.CommandType;
 import online.awet.system.ClientContext;
-
-import java.util.Set;
 
 /**
  * Handles {@code DM_MSG} commands from the server (direct messages).

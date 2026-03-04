@@ -1,9 +1,9 @@
 package online.awet.system;
 
-import online.awet.configurations.Configuration;
-
 import java.io.IOException;
 import java.net.Socket;
+
+import online.awet.configurations.Configuration;
 
 public class Connector {
 

@@ -1,14 +1,14 @@
 package online.awet.client.commands.executors;
 
+import java.util.Set;
+
 import online.awet.commons.Command;
 import online.awet.commons.CommandExecutor;
 import online.awet.commons.CommandSignature;
 import online.awet.commons.CommandType;
 import online.awet.system.ClientContext;
-import online.awet.tui.terminal.TerminalFormatUtils;
 import online.awet.tui.terminal.ANSIColor;
-
-import java.util.Set;
+import online.awet.tui.terminal.TerminalFormatUtils;
 
 /**
  * Handles {@code PRINT_MSG} commands from the server by appending the message text

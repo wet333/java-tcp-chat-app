@@ -1,5 +1,8 @@
 package online.awet.system.commands.executors;
 
+import java.util.Map;
+import java.util.Set;
+
 import online.awet.commons.Command;
 import online.awet.commons.CommandExecutor;
 import online.awet.commons.CommandSignature;
@@ -11,9 +14,6 @@ import online.awet.system.core.ConnectionRegistry;
 import online.awet.system.userManagement.AccountManager;
 import online.awet.system.userManagement.AccountManagerException;
 import online.awet.system.userManagement.User;
-
-import java.util.Map;
-import java.util.Set;
 
 public class LoginExecutor implements CommandExecutor, HelpProvider {
 

@@ -1,9 +1,7 @@
 package online.awet.system.core.sessions;
 
-import online.awet.system.core.sessions.SessionColorGenerator;
-
-import java.util.Objects;
 import java.util.Map;
+import java.util.Objects;
 
 public class Session {
 

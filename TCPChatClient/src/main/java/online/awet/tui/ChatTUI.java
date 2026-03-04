@@ -1,5 +1,10 @@
 package online.awet.tui;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import online.awet.commons.Command;
 import online.awet.commons.CommandSerializer;
 import online.awet.system.ClientContext;
@@ -14,11 +19,6 @@ import online.awet.tui.states.ChatPanelState;
 import online.awet.tui.states.InputFieldState;
 import online.awet.tui.states.StatusBarState;
 import online.awet.tui.terminal.Terminal;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ChatTUI {
 
