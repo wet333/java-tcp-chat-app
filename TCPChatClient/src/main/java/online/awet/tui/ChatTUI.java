@@ -13,6 +13,7 @@ import online.awet.tui.renderers.StatusBarRenderer;
 import online.awet.tui.states.ChatPanelState;
 import online.awet.tui.states.InputFieldState;
 import online.awet.tui.states.StatusBarState;
+import online.awet.tui.terminal.Terminal;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

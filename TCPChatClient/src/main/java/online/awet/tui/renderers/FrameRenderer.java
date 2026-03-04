@@ -1,7 +1,7 @@
 package online.awet.tui.renderers;
 
 import online.awet.tui.TUILayout;
-import online.awet.tui.Terminal;
+import online.awet.tui.terminal.Terminal;
 
 import java.util.List;
 

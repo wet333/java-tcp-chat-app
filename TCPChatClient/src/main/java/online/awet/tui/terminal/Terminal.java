@@ -1,4 +1,4 @@
-package online.awet.tui;
+package online.awet.tui.terminal;
 
 import java.io.FileInputStream;
 import java.io.IOException;

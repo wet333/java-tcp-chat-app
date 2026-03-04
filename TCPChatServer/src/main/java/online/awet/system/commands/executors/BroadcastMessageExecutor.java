@@ -31,6 +31,14 @@ public class BroadcastMessageExecutor implements CommandExecutor {
             CommandTarget.CLIENT,
             Map.of("sender", senderName, "msg", text)
         );
-        ConnectionRegistry.getInstance().broadcast(broadcastMessage);
+        ConnectionRegistry.getInstance().broadcastExcept(sender.getId(), broadcastMessage);
+
+        Command selfMessage = Command.of(
+            CommandType.CHAT_MSG, 
+            CommandTarget.CLIENT,
+            Map.of("sender", senderName, "msg", text)
+        );
+        selfMessage.setMetadata(Map.of("echo", "true"));
+        ConnectionRegistry.getInstance().sendToCurrentConnection(selfMessage);
     }
 }

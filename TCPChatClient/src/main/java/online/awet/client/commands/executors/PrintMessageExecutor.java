@@ -5,6 +5,8 @@ import online.awet.commons.CommandExecutor;
 import online.awet.commons.CommandSignature;
 import online.awet.commons.CommandType;
 import online.awet.system.ClientContext;
+import online.awet.tui.terminal.TerminalFormatUtils;
+import online.awet.tui.terminal.ANSIColor;
 
 import java.util.Set;
 
@@ -23,6 +25,9 @@ public class PrintMessageExecutor implements CommandExecutor {
     public void execute(Command command) {
         String msg = command.getParams().get("msg");
         ClientContext ctx = ClientContext.getInstance();
+
+        msg = TerminalFormatUtils.color(msg, ANSIColor.GRAY);
+
         ctx.getChatPanelState().addMessage(msg);
         ctx.notifyStateChanged();
     }

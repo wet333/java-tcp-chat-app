@@ -1,9 +1,9 @@
 package online.awet.tui.renderers;
 
 import online.awet.tui.TUILayout;
-import online.awet.tui.Terminal;
 import online.awet.tui.states.ChatPanelState;
 import online.awet.tui.states.StatusBarState;
+import online.awet.tui.terminal.Terminal;
 
 public class StatusBarRenderer {
 

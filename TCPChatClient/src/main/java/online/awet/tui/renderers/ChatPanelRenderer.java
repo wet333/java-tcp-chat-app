@@ -1,7 +1,8 @@
 package online.awet.tui.renderers;
 
 import online.awet.tui.TUILayout;
-import online.awet.tui.Terminal;
+import online.awet.tui.terminal.Terminal;
+import online.awet.tui.terminal.TerminalFormatUtils;
 import online.awet.tui.states.ChatPanelState;
 
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class ChatPanelRenderer {
                 line = "";
             }
 
-            int pad = innerWidth - line.length();
+            int pad = innerWidth - TerminalFormatUtils.visualLength(line);
             if (pad < 0) pad = 0;
             terminal.print(line + " ".repeat(pad));
         }
@@ -58,17 +59,48 @@ public class ChatPanelRenderer {
     private List<String> wrapMessages(List<String> messages, int width) {
         List<String> lines = new ArrayList<>();
         for (String msg : messages) {
-            if (msg.length() <= width) {
+            if (TerminalFormatUtils.visualLength(msg) <= width) {
                 lines.add(msg);
             } else {
-                int pos = 0;
-                while (pos < msg.length()) {
-                    int end = Math.min(pos + width, msg.length());
-                    lines.add(msg.substring(pos, end));
-                    pos = end;
-                }
+                lines.addAll(splitByVisualWidth(msg, width));
             }
         }
         return lines;
+    }
+
+    /**
+     * Splits a string (which may contain ANSI escape sequences) into chunks
+     * whose visible width does not exceed the terminal's {@code width} in columns. 
+     * Escape sequences are passed through intact and do not count toward the column total.
+     */
+    private List<String> splitByVisualWidth(String msg, int width) {
+        List<String> chunks = new ArrayList<>();
+        int len = msg.length();
+        int chunkStart = 0;
+        int visualCol = 0;
+        int i = 0;
+        while (i < len) {
+            // Detect start of an ANSI CSI escape sequence: ESC '['
+            if (msg.charAt(i) == '\033' && i + 1 < len && msg.charAt(i + 1) == '[') {
+                // Consume the entire sequence (up to and including the final letter)
+                i += 2;
+                while (i < len && !Character.isLetter(msg.charAt(i))) {
+                    i++;
+                }
+                if (i < len) i++; // consume the terminating letter
+            } else {
+                visualCol++;
+                i++;
+                if (visualCol == width && i < len) {
+                    chunks.add(msg.substring(chunkStart, i));
+                    chunkStart = i;
+                    visualCol = 0;
+                }
+            }
+        }
+        if (chunkStart < len) {
+            chunks.add(msg.substring(chunkStart));
+        }
+        return chunks;
     }
 }
