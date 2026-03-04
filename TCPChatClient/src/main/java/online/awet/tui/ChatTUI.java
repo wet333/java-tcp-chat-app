@@ -220,23 +220,22 @@ public class ChatTUI {
         int third = terminal.readChar();
 
         switch (third) {
-            case 'D':
+            case 'D' -> {
                 synchronized (terminal) {
                     inputFieldState.moveCursorLeft();
                     renderInputField();
                 }
-                break;
-            case 'C':
+            }
+            case 'C' -> {
                 synchronized (terminal) {
                     inputFieldState.moveCursorRight();
                     renderInputField();
                 }
-                break;
-            case '<':
+            }
+            case '<' -> {
                 handleSgrMouseSequence();
-                break;
-            default:
-                break;
+            }
+            default -> {}
         }
     }
 
