@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>TCPChatServer</artifactId>
-    <version>0.2.3-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -40,7 +40,28 @@
         </dependency>
     </dependencies>
 
+    <profiles>
+        <!-- dev profile (default): server-tls.properties will contain tls.env=dev -->
+        <profile>
+            <id>dev</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <properties><tls.env>dev</tls.env></properties>
+        </profile>
+        <!-- prod profile: server-tls.properties will contain tls.env=prod -->
+        <profile>
+            <id>prod</id>
+            <properties><tls.env>prod</tls.env></properties>
+        </profile>
+    </profiles>
+
     <build>
+        <resources>
+            <!-- Enable Maven resource filtering so ${tls.env} is substituted in server-tls.properties -->
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

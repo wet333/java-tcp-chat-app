@@ -12,7 +12,7 @@
     </parent>
 
     <artifactId>TCPChatClient</artifactId>
-    <version>0.2.2-SNAPSHOT</version>
+    <version>0.3.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -58,6 +58,44 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <!-- dev profile (default): bundles the DEV truststore (CN=localhost) inside the JAR -->
+        <profile>
+            <id>dev</id>
+            <activation><activeByDefault>true</activeByDefault></activation>
+            <build>
+                <resources>
+                    <resource><directory>src/main/resources</directory></resource>
+                    <resource>
+                        <directory>${project.basedir}/../dist/tls/dev</directory>
+                        <targetPath>tls</targetPath>
+                        <includes>
+                            <include>client.truststore.jks</include>
+                            <include>tls.properties</include>
+                        </includes>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+        <!-- prod profile: bundles the PROD truststore inside the JAR -->
+        <profile>
+            <id>prod</id>
+            <build>
+                <resources>
+                    <resource><directory>src/main/resources</directory></resource>
+                    <resource>
+                        <directory>${project.basedir}/../dist/tls/prod</directory>
+                        <targetPath>tls</targetPath>
+                        <includes>
+                            <include>client.truststore.jks</include>
+                            <include>tls.properties</include>
+                        </includes>
+                    </resource>
+                </resources>
+            </build>
+        </profile>
+    </profiles>
 
     <build>
         <plugins>

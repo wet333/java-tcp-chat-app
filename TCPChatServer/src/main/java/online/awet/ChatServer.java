@@ -1,11 +1,18 @@
 package online.awet;
 
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.io.InputStream;
 import java.net.Socket;
 import java.nio.file.Path;
+import java.security.KeyStore;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLServerSocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +27,7 @@ import online.awet.threads.ClientHandlerThread;
 /**
  * <p>Server entry point.</p>
  * <p>Starts the server on the given PORT and listens for client connections. Port is configurable via command line argument, default is {@link Configurations#PORT}.</p>
- * 
+ *
  * <p>Server wide components are initialized here.</p>
  * <ul>
  *     <li>{@link AccountManager}</li>
@@ -37,8 +44,8 @@ public class ChatServer {
         // Get the PORT number from the command line arguments, if not provided, use the default PORT from the configurations.
         int portNumber = args.length >= 1 ? Integer.parseInt(args[0]) : Configurations.PORT;
 
-        try (ServerSocket serverSocket = new ServerSocket(portNumber)) {
-            logger.info("Chat server started on port: {}", portNumber);
+        try (SSLServerSocket serverSocket = createSSLServerSocket(portNumber)) {
+            logger.info("Chat server started on port: {} (TLS)", portNumber);
 
             initializeServerWideComponents();
 
@@ -51,9 +58,46 @@ public class ChatServer {
         } catch (IOException e) {
             logger.error("Could not create server on port: {}", portNumber, e);
             logger.info("Terminating server...");
+        } catch (Exception e) {
+            logger.error("TLS setup failed: {}", e.getMessage(), e);
+            logger.info("Terminating server...");
         } finally {
             threadPool.shutdown();
         }
+    }
+
+    private static SSLServerSocket createSSLServerSocket(int port) throws Exception {
+        // Detect environment from the resource injected at build time by Maven profiles
+        Properties tlsProps = new Properties();
+        try (InputStream in = ChatServer.class.getResourceAsStream("/server-tls.properties")) {
+            tlsProps.load(in);
+        }
+        String env = tlsProps.getProperty("tls.env", "dev");
+
+        // Password: env var TLS_KS_PASSWORD takes precedence; dev falls back to the default
+        String ksPass = System.getenv("TLS_KS_PASSWORD");
+        if (ksPass == null) {
+            if ("prod".equals(env)) {
+                throw new IllegalStateException(
+                    "TLS_KS_PASSWORD environment variable is required when running the PROD server.");
+            }
+            ksPass = "chatapp_dev_tls";
+        }
+
+        logger.info("TLS environment: {}", env);
+
+        KeyStore ks = KeyStore.getInstance("JKS");
+        try (FileInputStream fis = new FileInputStream("server.keystore.jks")) {
+            ks.load(fis, ksPass.toCharArray());
+        }
+
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+        kmf.init(ks, ksPass.toCharArray());
+
+        SSLContext ctx = SSLContext.getInstance("TLS");
+        ctx.init(kmf.getKeyManagers(), null, null);
+
+        return (SSLServerSocket) ctx.getServerSocketFactory().createServerSocket(port);
     }
 
     private static void initializeServerWideComponents() {
