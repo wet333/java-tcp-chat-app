@@ -86,7 +86,7 @@ public class ChatServer {
 
         logger.info("TLS environment: {}", env);
 
-        KeyStore ks = KeyStore.getInstance("JKS");
+        KeyStore ks = KeyStore.getInstance("PKCS12");
         try (FileInputStream fis = new FileInputStream("server.keystore.jks")) {
             ks.load(fis, ksPass.toCharArray());
         }

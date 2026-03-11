@@ -58,10 +58,11 @@ mvn package -pl TCPChatClient -Pdev -DskipTests --no-transfer-progress -q
 cp "$client_jar" "$dist_dev_dir/Client_DEV_${client_version}.jar"
 
 if [ "$BUILD_PROD" = true ]; then
-    mvn package -pl TCPChatServer -Pprod -DskipTests --no-transfer-progress -q
+    mvn clean package -pl TCPChatServer -Pprod -DskipTests --no-transfer-progress -q
     cp "$server_jar" "$dist_dev_dir/Server_PROD_${server_version}.jar"
+    cp "$dist_dev_dir/tls/prod/server.keystore.jks" "$dist_dev_dir/server.keystore.jks"
 
-    mvn package -pl TCPChatClient -Pprod -DskipTests --no-transfer-progress -q
+    mvn clean package -pl TCPChatClient -Pprod -DskipTests --no-transfer-progress -q
     cp "$client_jar" "$dist_dev_dir/Client_PROD_${client_version}.jar"
 fi
 
@@ -74,3 +75,9 @@ echo "  cp tls/dev/server.keystore.jks ./ && java -jar Server_DEV_${server_versi
 echo ""
 echo "To run DEV client (from dist/):"
 echo "  java -jar Client_DEV_${client_version}.jar"
+echo ""
+if [ "$BUILD_PROD" = true ]; then
+echo "To run PROD server (from dist/):"
+echo "  TLS_KS_PASSWORD=<password> java -jar Server_PROD_${server_version}.jar"
+echo "  (server.keystore.jks has been copied to dist/ automatically)"
+fi
