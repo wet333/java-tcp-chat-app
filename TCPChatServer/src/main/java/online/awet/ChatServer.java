@@ -81,7 +81,7 @@ public class ChatServer {
                 throw new IllegalStateException(
                     "TLS_KS_PASSWORD environment variable is required when running the PROD server.");
             }
-            ksPass = "chatapp_dev_tls";
+            ksPass = "password";
         }
 
         logger.info("TLS environment: {}", env);
